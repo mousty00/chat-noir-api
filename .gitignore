@@ -13,9 +13,13 @@ target/
 .springBeans
 .sts4-cache
 
-### Secret COnfiguration Files ###
+### Secret Configuration Files ###
 application*.yml
 application*.properties
+
+## Environments
+*.env
+database.env
 
 
 ### IntelliJ IDEA ###
