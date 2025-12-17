@@ -121,10 +121,9 @@ CREATE TABLE user_api_key
 
 CREATE TABLE user_favorite
 (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id           UUID NOT NULL,
     cat_media_id      UUID NOT NULL,
-
-    PRIMARY KEY (user_id, cat_media_id),
 
     CONSTRAINT fk_favorite_user
         FOREIGN KEY (user_id)
