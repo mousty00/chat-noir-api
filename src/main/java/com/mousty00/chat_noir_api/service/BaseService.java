@@ -35,8 +35,8 @@ public abstract class BaseService<ENTITY, DTO, REPO extends JpaRepository<ENTITY
         PaginatedResponse<DTO> data = buildPaginatedResponse(page);
 
         return ApiResponse.<PaginatedResponse<DTO>>builder()
-                .statusCode(HttpStatusCode.valueOf(200))
-                .status(HttpStatus.ACCEPTED.value())
+                .statusCode(HttpStatus.OK)
+                .status(HttpStatus.OK.value())
                 .message("")
                 .success(true)
                 .error(false)
