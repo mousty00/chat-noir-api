@@ -1,9 +1,6 @@
 package com.mousty00.chat_noir_api.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
@@ -31,5 +28,9 @@ public class Cat {
 
     @Column(name = "source_name", length = 50)
     private String sourceName;
+
+    @OneToOne
+    @JoinColumn(name = "id", referencedColumnName = "cat_id", insertable = false, updatable = false)
+    private CatMedia media;
 
 }

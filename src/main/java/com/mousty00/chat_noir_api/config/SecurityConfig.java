@@ -15,10 +15,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/countries").permitAll() // <-- Allow unauthenticated access
+                        .requestMatchers("/*").permitAll()
                         .anyRequest().authenticated()
                 )
-                // Disable CSRF for simplified API testing
                 .csrf(AbstractHttpConfigurer::disable);
 
         return http.build();

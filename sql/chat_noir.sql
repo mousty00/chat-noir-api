@@ -1,3 +1,5 @@
+
+
 CREATE TABLE cat_category
 (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -10,7 +12,7 @@ CREATE TABLE cat
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name        VARCHAR(25) NOT NULL,
     color       VARCHAR(25),
-    category_id UUID         NOT NULL,
+    category_id UUID,
     source_name VARCHAR(50), -- creator
 
     CONSTRAINT fk_cat_category

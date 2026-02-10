@@ -1,0 +1,15 @@
+target/
+!target/chat-noir-api-*.jar
+.mvn/
+database.env
+*.iml
+.idea/
+.git/
+.gitignore
+README.md
+.env
+*.log
+.DS_Store
+*.swp
+*.swo
+node_modules/
