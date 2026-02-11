@@ -4,7 +4,7 @@
 ### The API supports dynamic content types (Images, GIFs, and Cartoons) and provides media files optimized for different device formats (Desktop and Phone Wallpapers).
 
 
-## 🚀 Technology Stack
+## Technology Stack
 ### This project leverages the cutting-edge features of the latest Java and Spring Boot ecosystem.
 
 | Component | Version | Notes |
@@ -15,14 +15,14 @@
 | **Database** | PostgreSQL | Uses native `UUID` types for primary keys. |
 
 
-## ✨ Core Features
+## Core Features
 * **Multi-Format Media:** Each cat entry can provide multiple media files optimized for different use cases.
 * **Category-Based Content:** Media style is grouped by category (`Fluffy`, `Cartoon`, `Sleek`).
 * **UUID Primary Keys:** All core entities use UUIDs for modern, distributed, and secure identification.
 * **User Favorites:** Support for authenticated users to manage their preferred cat media.
 
 
-## 💾 Data Model Overview
+## Data Model Overview
 ### The database schema (PostgreSQL) is designed for flexibility and clean data separation:
 
 * **`cat_category`**: Defines the group (e.g., 'Cartoon') and the `media_type_hint` (e.g., 'cartoon').
@@ -31,7 +31,7 @@
 * **`user` & `user_favorite**`: Standard user model and a join table for saving favorite media files.
 
 
-## 🛠️ Getting Started###Prerequisites* Java 25 JDK
+## Getting Started###Prerequisites* Java 25 JDK
 * Maven or Gradle
 * PostgreSQL instance
 
@@ -70,7 +70,7 @@ spring:
 The application will start on `http://localhost:8080`.
 
 
-## 🌍 API Endpoints
+## API Endpoints
 
 ### All cats.
 
