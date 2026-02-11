@@ -150,6 +150,14 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- File Utilities -->
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.21.0</version>
+			<scope>compile</scope>
+		</dependency>
+
 		<!-- Code Generation -->
 		<dependency>
 			<groupId>org.mapstruct</groupId>

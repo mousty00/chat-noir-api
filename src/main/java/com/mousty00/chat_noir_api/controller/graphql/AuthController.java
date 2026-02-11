@@ -18,42 +18,11 @@ public class AuthController {
     
     @MutationMapping
     public ApiResponse<LoginResponse> login(@Argument LoginRequest request) {
-        try {
-            LoginResponse response = authService.login(request);
-            return ApiResponse.<LoginResponse>builder()
-                .status(200)
-                .error(false)
-                .success(true)
-                .data(response)
-                .build();
-        } catch (Exception e) {
-            return ApiResponse.<LoginResponse>builder()
-                .status(401)
-                .error(true)
-                .success(false)
-                .message("Invalid credentials")
-                .build();
-        }
+        return authService.login(request);
     }
     
     @MutationMapping
     public ApiResponse<String> register(@Argument RegisterRequest request) {
-        try {
-            authService.register(request);
-            return ApiResponse.<String>builder()
-                    .status(201)
-                    .error(false)
-                    .success(true)
-                    .message("User registered successfully")
-                    .data("")
-                    .build();
-        } catch (Exception e) {
-            return ApiResponse.<String>builder()
-                .status(400)
-                .error(true)
-                .success(false)
-                .message(e.getMessage())
-                .build();
-        }
+        return authService.register(request);
     }
 }

@@ -1,8 +1,8 @@
 package com.mousty00.chat_noir_api.service;
 
+import com.mousty00.chat_noir_api.enums.EPAGE;
 import com.mousty00.chat_noir_api.mapper.BaseMapper;
-import com.mousty00.chat_noir_api.pagination.EPAGE;
-import com.mousty00.chat_noir_api.pagination.PaginatedResponse;
+import com.mousty00.chat_noir_api.dto.api.PaginatedResponse;
 import com.mousty00.chat_noir_api.dto.api.ApiResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

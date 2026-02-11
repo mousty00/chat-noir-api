@@ -1,4 +1,4 @@
-package com.mousty00.chat_noir_api.pagination;
+package com.mousty00.chat_noir_api.dto.api;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
