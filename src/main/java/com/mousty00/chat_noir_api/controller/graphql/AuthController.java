@@ -41,11 +41,12 @@ public class AuthController {
         try {
             authService.register(request);
             return ApiResponse.<String>builder()
-                .status(201)
-                .error(false)
-                .success(true)
-                .message("User registered successfully")
-                .build();
+                    .status(201)
+                    .error(false)
+                    .success(true)
+                    .message("User registered successfully")
+                    .data("")
+                    .build();
         } catch (Exception e) {
             return ApiResponse.<String>builder()
                 .status(400)

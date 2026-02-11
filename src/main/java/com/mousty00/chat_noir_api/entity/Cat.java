@@ -15,6 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Cat {
     @Id
+    @GeneratedValue(generator = "UUID")
     @ColumnDefault("gen_random_uuid()")
     @Column(name = "id", nullable = false)
     private UUID id;

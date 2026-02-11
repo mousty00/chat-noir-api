@@ -8,33 +8,44 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtUtil {
-    
-    @Value("${jwt.secret:defaultSecretKeyChangeInProduction}")
+
+    @Value("${jwt.secret:defaultSecretKeyChangeInProduction!123}")
     private String secret;
-    
+
     @Value("${jwt.expiration:86400000}")
     private Long expiration;
-    
+
     public String generateToken(String username, List<String> roles, boolean isAdmin) {
         List<String> springRoles = roles.stream()
-            .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
-            .toList();
-        
+                .map(role -> {
+                    if (role.startsWith("ROLE_")) {
+                        return role;
+                    } else {
+                        return "ROLE_" + role.toUpperCase();
+                    }
+                })
+                .collect(Collectors.toList());
+
+        if (isAdmin && !springRoles.contains("ROLE_ADMIN")) {
+            springRoles.add("ROLE_ADMIN");
+        }
+
         return JWT.create()
-            .withSubject(username)
-            .withClaim("roles", springRoles)
-            .withClaim("isAdmin", isAdmin)
-            .withIssuedAt(new Date())
-            .withExpiresAt(new Date(System.currentTimeMillis() + expiration))
-            .sign(Algorithm.HMAC256(secret));
+                .withSubject(username)
+                .withClaim("roles", springRoles)
+                .withClaim("isAdmin", isAdmin)
+                .withIssuedAt(new Date())
+                .withExpiresAt(new Date(System.currentTimeMillis() + expiration))
+                .sign(Algorithm.HMAC256(secret));
     }
-    
+
     public DecodedJWT validateToken(String token) {
         return JWT.require(Algorithm.HMAC256(secret))
-            .build()
-            .verify(token);
+                .build()
+                .verify(token);
     }
 }

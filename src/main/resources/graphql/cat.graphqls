@@ -12,7 +12,7 @@ extend type Mutation {
 input CatRequest {
     name: String!
     color: String
-    categoryId: ID
+    categoryId: String
     image: String
     sourceName: String
 }

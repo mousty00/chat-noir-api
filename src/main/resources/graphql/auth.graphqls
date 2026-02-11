@@ -1,6 +1,6 @@
 extend type Mutation {
-    login(request: LoginRequest!): ApiResponse
-    register(request: RegisterRequest!): ApiResponse
+    login(request: LoginRequest!): ApiResponseLogin
+    register(request: RegisterRequest!): ApiResponseRegister
 }
 
 input LoginRequest {
@@ -20,5 +20,21 @@ type LoginResponse {
     email: String!
     isAdmin: Boolean!
     roles: [String!]!
+}
+
+type ApiResponseRegister implements ApiResponse {
+    status: Int!
+    error: Boolean!
+    message: String
+    success: Boolean!
+    data: String
+}
+
+type ApiResponseLogin implements ApiResponse {
+    status: Int!
+    error: Boolean!
+    message: String
+    success: Boolean!
+    data: LoginResponse
 }
 

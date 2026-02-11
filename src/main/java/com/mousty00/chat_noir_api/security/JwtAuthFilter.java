@@ -29,19 +29,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         
         String authHeader = request.getHeader("Authorization");
-        List<String> permittedEndpoints = List.of("", "");
 
-        if (permittedEndpoints.contains(request.getRequestURL())) {
-            return;
-        }
-        
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             
             try {
                 DecodedJWT decodedJWT = jwtUtil.validateToken(token);
                 String username = decodedJWT.getSubject();
-                List<String> roles = decodedJWT.getClaim("role").asList(String.class);
+                List<String> roles = decodedJWT.getClaim("roles").asList(String.class);
                 
                 var authorities = roles.stream()
                     .map(SimpleGrantedAuthority::new)

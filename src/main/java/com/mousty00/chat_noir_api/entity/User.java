@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.IdGeneratorType;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -14,8 +15,8 @@ import java.util.UUID;
 @Table(name = "\"user\"")
 public class User {
     @Id
+    @GeneratedValue(generator = "UUID")
     @ColumnDefault("gen_random_uuid()")
-    @Column(name = "id", nullable = false)
     private UUID id;
 
     @Column(name = "username", nullable = false, length = 50)
