@@ -1,0 +1,64 @@
+extend type Query {
+    catById(id: ID!): ApiResponseCat
+    allCats(page: Int, size: Int): ApiResponsePaginatedCat
+}
+
+extend type Mutation {
+    deleteCat(id: ID!): ApiResponseCat
+    createCat(cat: CatRequest): ApiResponseCat
+    updateCat(id: ID ,cat: CatRequest): ApiResponseCat
+}
+
+input CatRequest {
+    name: String!
+    color: String
+    categoryId: ID
+    image: String
+    sourceName: String
+}
+
+type Cat {
+    id: ID!
+    name: String!
+    color: String
+    category: Category
+    image: String
+    sourceName: String
+}
+
+input CategoryRequest {
+    name: String!
+    mediaTypeHint: String!
+}
+
+type Category {
+    id: ID!
+    name: String!
+    mediaTypeHint: String!
+}
+
+type ApiResponseCat implements ApiResponse{
+    status: Int!
+    error: Boolean!
+    message: String
+    success: Boolean!
+    data: Cat
+}
+
+type PaginatedResponseCat implements PaginatedResponse{
+    currentPage: Int!
+    totalPages: Int!
+    totalItems: Int!
+    pageSize: Int!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+    result: [Cat!]!
+}
+
+type ApiResponsePaginatedCat implements ApiResponsePaginated{
+    status: Int!
+    error: Boolean!
+    message: String
+    success: Boolean!
+    data: PaginatedResponseCat
+}

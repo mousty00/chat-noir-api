@@ -1,4 +1,4 @@
-package com.mousty00.chat_noir_api.dto;
+package com.mousty00.chat_noir_api.dto.cat;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,0 +1,24 @@
+extend type Mutation {
+    login(request: LoginRequest!): ApiResponse
+    register(request: RegisterRequest!): ApiResponse
+}
+
+input LoginRequest {
+    username: String!
+    password: String!
+}
+
+input RegisterRequest {
+    username: String!
+    email: String!
+    password: String!
+}
+
+type LoginResponse {
+    token: String!
+    username: String!
+    email: String!
+    isAdmin: Boolean!
+    roles: [String!]!
+}
+

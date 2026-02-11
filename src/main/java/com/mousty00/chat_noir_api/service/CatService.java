@@ -1,27 +1,32 @@
 package com.mousty00.chat_noir_api.service;
 
-import com.mousty00.chat_noir_api.dto.CatDTO;
+import com.mousty00.chat_noir_api.dto.cat.CatDTO;
+import com.mousty00.chat_noir_api.dto.cat.CatRequestDTO;
 import com.mousty00.chat_noir_api.entity.Cat;
 import com.mousty00.chat_noir_api.mapper.CatMapper;
 import com.mousty00.chat_noir_api.pagination.PaginatedResponse;
 import com.mousty00.chat_noir_api.repository.CatRepository;
-import com.mousty00.chat_noir_api.response.ApiResponse;
+import com.mousty00.chat_noir_api.dto.api.ApiResponse;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-
 @Service
 public class CatService extends BaseService<Cat, CatDTO, CatRepository, CatMapper> {
 
-    public CatService(CatRepository repository, CatMapper mapper) {
-        super(repository, mapper);
+    public CatService(CatRepository repo, CatMapper mapper) {
+        super(repo, mapper);
     }
 
-    public ApiResponse<PaginatedResponse<CatDTO>> getCats() {
-        return getPagedItems(null);
+    public ApiResponse<PaginatedResponse<CatDTO>> getCats(Integer page, Integer size) {
+        if (page == null || size == null) {
+            return getPagedItems(null);
+        }
+
+        return getPagedItems(PageRequest.of(page, size));
     }
 
     public ApiResponse<CatDTO> getCatById(UUID id) {
@@ -34,23 +39,30 @@ public class CatService extends BaseService<Cat, CatDTO, CatRepository, CatMappe
     }
 
     @Transactional
-    public ApiResponse<CatDTO> saveCat(CatDTO request) {
-        return saveItem(request);
+    public ApiResponse<CatDTO> saveCat(CatRequestDTO request) {
+        Cat cat = mapper.toEntityFromRequest(request);
+        CatDTO catDTO = mapper.toDTO(cat);
+        return ApiResponse.<CatDTO>builder()
+                .status(HttpStatus.OK.value())
+                .message("Cat saved!")
+                .success(true)
+                .data(catDTO)
+                .error(false)
+                .build();
     }
 
     @Transactional
-    public ApiResponse<CatDTO> updateCat(UUID id, CatDTO request) {
+    public ApiResponse<CatDTO> updateCat(UUID id, CatDTO dto) {
         if (!repo.existsById(id)) {
             return ApiResponse.<CatDTO>builder()
-                    .statusCode(HttpStatus.NOT_FOUND)
                     .status(HttpStatus.NOT_FOUND.value())
                     .message("Cat not found")
                     .success(false)
                     .error(true)
                     .build();
         }
-        request.setId(id);
-        return saveItem(request);
+        dto.setId(id);
+        return saveItem(dto);
     }
 
 }

@@ -1,16 +1,18 @@
 package com.mousty00.chat_noir_api.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.Remove;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.util.UUID;
 
-@Getter
-@Setter
+@Data
+@Builder
 @Entity
 @Table(name = "cat")
+@RequiredArgsConstructor
+@AllArgsConstructor
 public class Cat {
     @Id
     @ColumnDefault("gen_random_uuid()")
@@ -23,14 +25,14 @@ public class Cat {
     @Column(name = "color", length = 25)
     private String color;
 
-    @Column(name = "category_id", nullable = false)
-    private UUID categoryId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private CatCategory category;
 
     @Column(name = "source_name", length = 50)
     private String sourceName;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id", referencedColumnName = "cat_id", insertable = false, updatable = false)
     private CatMedia media;
-
 }

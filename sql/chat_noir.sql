@@ -1,5 +1,4 @@
 
-
 CREATE TABLE cat_category
 (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -76,6 +75,7 @@ CREATE TABLE "user"
     email         VARCHAR(100) NOT NULL UNIQUE,
     password      VARCHAR(255) NOT NULL,
     role_id       UUID         NOT NULL,
+    is_admin      BOOLEAN      NOT NULL,
 
     plan_id       UUID,
     subscription_start_date TIMESTAMP,

@@ -1,0 +1,22 @@
+interface ApiResponse {
+    status: Int!
+    error: Boolean!
+    message: String
+    success: Boolean!
+}
+
+interface PaginatedResponse {
+    currentPage: Int!
+    totalPages: Int!
+    totalItems: Int!
+    pageSize: Int!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+}
+
+interface ApiResponsePaginated {
+    status: Int!
+    error: Boolean!
+    message: String
+    success: Boolean!
+}

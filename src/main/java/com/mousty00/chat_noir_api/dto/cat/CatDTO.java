@@ -1,4 +1,4 @@
-package com.mousty00.chat_noir_api.dto;
+package com.mousty00.chat_noir_api.dto.cat;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

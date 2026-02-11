@@ -1,11 +1,9 @@
-package com.mousty00.chat_noir_api.response;
+package com.mousty00.chat_noir_api.dto.api;
 
 import lombok.Builder;
-import org.springframework.http.HttpStatusCode;
 
 @Builder
 public record ApiResponse<T>(
-        HttpStatusCode statusCode,
         int status,
         boolean error,
         String message,

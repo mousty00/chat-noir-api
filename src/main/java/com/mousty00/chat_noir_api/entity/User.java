@@ -1,9 +1,6 @@
 package com.mousty00.chat_noir_api.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
@@ -30,11 +27,16 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "role_id", nullable = false)
-    private UUID roleId;
+    @Column(name = "is_admin", nullable = false)
+    private boolean isAdmin = false;
 
-    @Column(name = "plan_id")
-    private UUID planId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id", nullable = false)
+    private UserRole role;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "plan_id")
+    private SubscriptionPlan plan;
 
     @Column(name = "subscription_start_date")
     private Instant subscriptionStartDate;
@@ -45,7 +47,7 @@ public class User {
     @Column(name = "stripe_subscription_id")
     private String stripeSubscriptionId;
 
-    @Column(name = "profile_media_id")
-    private UUID profileMediaId;
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profile_media_id")
+    private UserMedia profileMedia;
 }

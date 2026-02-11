@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class PaginatedResponse<T> {
-    private List<T> data;
+    private List<T> result;
     private int currentPage;
     private int totalPages;
     private long totalItems;
