@@ -1,8 +1,7 @@
 package com.mousty00.chat_noir_api.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
@@ -11,8 +10,12 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@ToString
+@Builder
 @Entity
 @Table(name = "subscription_plan")
+@NoArgsConstructor
+@AllArgsConstructor
 public class SubscriptionPlan {
     @Id
     @GeneratedValue(generator = "UUID")

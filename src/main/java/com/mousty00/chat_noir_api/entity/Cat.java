@@ -2,12 +2,15 @@ package com.mousty00.chat_noir_api.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.Remove;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.proxy.HibernateProxy;
 
+import java.util.Objects;
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
+@ToString
 @Builder
 @Entity
 @Table(name = "cat")
@@ -28,6 +31,7 @@ public class Cat {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
+    @ToString.Exclude
     private CatCategory category;
 
     @Column(name = "source_name", length = 50)
@@ -35,5 +39,7 @@ public class Cat {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id", referencedColumnName = "cat_id", insertable = false, updatable = false)
+    @ToString.Exclude
     private CatMedia media;
+
 }

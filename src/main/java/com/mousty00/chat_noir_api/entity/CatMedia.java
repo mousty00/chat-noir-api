@@ -1,16 +1,19 @@
 package com.mousty00.chat_noir_api.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.util.UUID;
 
 @Getter
 @Setter
+@ToString
+@Builder
 @Entity
 @Table(name = "cat_media")
+@NoArgsConstructor
+@AllArgsConstructor
 public class CatMedia {
     @Id
     @GeneratedValue(generator = "UUID")

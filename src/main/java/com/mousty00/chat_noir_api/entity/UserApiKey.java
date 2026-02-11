@@ -1,8 +1,7 @@
 package com.mousty00.chat_noir_api.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
@@ -10,8 +9,12 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@ToString
+@Builder
 @Entity
 @Table(name = "user_api_key")
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserApiKey {
     @Id
     @GeneratedValue(generator = "UUID")
