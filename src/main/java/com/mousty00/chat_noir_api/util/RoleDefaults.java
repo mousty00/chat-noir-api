@@ -1,14 +1,14 @@
-package com.mousty00.chat_noir_api.enums;
+package com.mousty00.chat_noir_api.util;
 
 import java.util.Arrays;
 import java.util.List;
 
-public enum EROLE {
+public enum RoleDefaults {
     ALLOWED_ROLES("ADMIN", "CREATOR", "DEVELOPER");
 
     public final List<String> allowedRoles;
 
-    EROLE(String... endpoints) {
+    RoleDefaults(String... endpoints) {
         this.allowedRoles = Arrays.asList(endpoints);
     }
 }

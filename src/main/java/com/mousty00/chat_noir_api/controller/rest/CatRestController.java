@@ -3,6 +3,7 @@ package com.mousty00.chat_noir_api.controller.rest;
 import com.mousty00.chat_noir_api.dto.api.ApiResponse;
 import com.mousty00.chat_noir_api.dto.api.PaginatedResponse;
 import com.mousty00.chat_noir_api.dto.cat.CatDTO;
+import com.mousty00.chat_noir_api.dto.cat.CatFilterDTO;
 import com.mousty00.chat_noir_api.dto.cat.CatRequestDTO;
 import com.mousty00.chat_noir_api.service.CatMediaService;
 import com.mousty00.chat_noir_api.service.CatService;
@@ -24,8 +25,8 @@ public class CatRestController {
     private final CatMediaService mediaService;
 
     @GetMapping("/cats")
-    public ApiResponse<PaginatedResponse<CatDTO>> getCats(Integer page, Integer size, String category) {
-        return service.getCats(page, size, category);
+    public ApiResponse<PaginatedResponse<CatDTO>> getCats(Integer page, Integer size, CatFilterDTO filter) {
+        return service.getCats(page, size, filter);
     }
 
     @GetMapping("/cats/{id}")

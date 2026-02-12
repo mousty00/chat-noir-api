@@ -35,6 +35,11 @@ public class CatException extends ApiException {
         super(message, errorCode.getCode(), errorCode.getStatus(), cause);
     }
 
+    public static CatException deleteError(Exception e) {
+        return new CatException("Error deleting cat: " + e.getMessage(),
+                CatException.CatErrorCode.CAT_DELETE_ERROR, e);
+    }
+
     public static CatException catNotFound(UUID id) {
         return new CatException("Cat not found with id: " + id, CatErrorCode.CAT_NOT_FOUND);
     }

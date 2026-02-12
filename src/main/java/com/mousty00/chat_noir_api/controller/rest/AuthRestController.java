@@ -1,6 +1,6 @@
 package com.mousty00.chat_noir_api.controller.rest;
 
-import com.mousty00.chat_noir_api.dto.LoginRequest;
+import com.mousty00.chat_noir_api.dto.auth.LoginRequest;
 import com.mousty00.chat_noir_api.dto.api.ApiResponse;
 import com.mousty00.chat_noir_api.dto.auth.LoginResponse;
 import com.mousty00.chat_noir_api.dto.auth.RegisterRequest;

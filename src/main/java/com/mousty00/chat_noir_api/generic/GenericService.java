@@ -1,10 +1,10 @@
 package com.mousty00.chat_noir_api.generic;
 
-import com.mousty00.chat_noir_api.enums.EPAGE;
+import com.mousty00.chat_noir_api.dto.api.ApiResponse;
+import com.mousty00.chat_noir_api.dto.api.PaginatedResponse;
 import com.mousty00.chat_noir_api.exception.ResourceNotFoundException;
 import com.mousty00.chat_noir_api.exception.ResourceNotFoundException.ResourceType;
-import com.mousty00.chat_noir_api.dto.api.PaginatedResponse;
-import com.mousty00.chat_noir_api.dto.api.ApiResponse;
+import com.mousty00.chat_noir_api.util.PageDefaults;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
@@ -29,7 +29,7 @@ public abstract class GenericService<ENTITY, DTO, REPO extends JpaRepository<ENT
      */
     public ApiResponse<PaginatedResponse<DTO>> getPagedItems(Pageable pageable) {
 
-        Pageable request = (pageable != null) ? pageable : PageRequest.of(0, EPAGE.DEFAULT_SIZE.size);
+        Pageable request = (pageable != null) ? pageable : PageRequest.of(0, PageDefaults.DEFAULT_SIZE);
 
         Page<DTO> page = repo.findAll(request).map(mapper::toDTO);
         PaginatedResponse<DTO> data = buildPaginatedResponse(page);

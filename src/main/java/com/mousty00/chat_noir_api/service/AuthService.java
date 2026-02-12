@@ -1,12 +1,11 @@
 package com.mousty00.chat_noir_api.service;
 
-import com.mousty00.chat_noir_api.dto.LoginRequest;
+import com.mousty00.chat_noir_api.dto.auth.LoginRequest;
 import com.mousty00.chat_noir_api.dto.api.ApiResponse;
 import com.mousty00.chat_noir_api.dto.auth.LoginResponse;
 import com.mousty00.chat_noir_api.dto.auth.RegisterRequest;
 import com.mousty00.chat_noir_api.entity.User;
 import com.mousty00.chat_noir_api.entity.UserRole;
-import com.mousty00.chat_noir_api.exception.ApiException;
 import com.mousty00.chat_noir_api.exception.AuthenticationException;
 import com.mousty00.chat_noir_api.exception.DataIntegrityException;
 import com.mousty00.chat_noir_api.exception.ResourceNotFoundException;
@@ -30,7 +29,7 @@ public class AuthService {
     private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-    
+
     @Transactional
     public ApiResponse<LoginResponse> login(LoginRequest request) {
             User user = userRepository.findByUsernameWithRole(request.getUsername())

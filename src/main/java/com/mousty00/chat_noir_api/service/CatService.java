@@ -1,29 +1,30 @@
 package com.mousty00.chat_noir_api.service;
 
-import com.mousty00.chat_noir_api.dto.api.ApiResponse;
-import com.mousty00.chat_noir_api.dto.api.PaginatedResponse;
 import com.mousty00.chat_noir_api.dto.cat.CatDTO;
+import com.mousty00.chat_noir_api.dto.cat.CatFilterDTO;
 import com.mousty00.chat_noir_api.dto.cat.CatRequestDTO;
 import com.mousty00.chat_noir_api.entity.Cat;
 import com.mousty00.chat_noir_api.entity.CatCategory;
-import com.mousty00.chat_noir_api.enums.EPAGE;
 import com.mousty00.chat_noir_api.exception.CatException;
+import com.mousty00.chat_noir_api.exception.ResourceNotFoundException.ResourceType;
 import com.mousty00.chat_noir_api.generic.GenericService;
 import com.mousty00.chat_noir_api.mapper.CatMapper;
+import com.mousty00.chat_noir_api.dto.api.PaginatedResponse;
 import com.mousty00.chat_noir_api.repository.CatCategoryRepository;
 import com.mousty00.chat_noir_api.repository.CatRepository;
+import com.mousty00.chat_noir_api.dto.api.ApiResponse;
+import com.mousty00.chat_noir_api.specification.CatSpecifications;
+import com.mousty00.chat_noir_api.util.PageDefaults;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
-
-import static com.mousty00.chat_noir_api.exception.ResourceNotFoundException.ResourceType;
 
 @Service
 public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMapper> {
@@ -40,28 +41,15 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
         this.catCategoryRepository = catCategoryRepository;
     }
 
-    public ApiResponse<PaginatedResponse<CatDTO>> getCats(Integer pageNumber, Integer size, String category) {
-        if (pageNumber == null) pageNumber = 0;
-        if (size == null) size = EPAGE.DEFAULT_SIZE.size;
+    public ApiResponse<PaginatedResponse<CatDTO>> getCats(Integer page, Integer size, CatFilterDTO filterDTO) {
+        Pageable pageable = PageDefaults.of(page, size);
 
-        Pageable request = PageRequest.of(pageNumber,size);
-        Page<CatDTO> page;
+        Specification<Cat> spec = CatSpecifications.filter(filterDTO);
 
-        if (category != null) {
-            page = repo.findAllByCategory_Name(category, request).map(mapper::toDTO);
-        } else {
-            page = repo.findAll(request).map(mapper::toDTO);
-        }
+        Page<CatDTO> pageResult = repo.findAll(spec, pageable)
+                .map(mapper::toDTO);
 
-        PaginatedResponse<CatDTO> data = buildPaginatedResponse(page);
-
-        return ApiResponse.<PaginatedResponse<CatDTO>>builder()
-                .status(HttpStatus.OK.value())
-                .message("page retrieved successfully")
-                .success(true)
-                .error(false)
-                .data(data)
-                .build();
+        return buildSuccessResponse(pageResult, "Search completed successfully");
     }
 
     public ApiResponse<CatDTO> getCatById(UUID id) {
@@ -100,13 +88,11 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
             log.info("Cat saved successfully with ID: {}, category: {}",
                     savedCat.getId(), savedCat.getCategory().getName());
 
-            CatDTO catDTO = mapper.toDTO(savedCat);
-
             return ApiResponse.<CatDTO>builder()
                     .status(HttpStatus.OK.value())
                     .message("Cat saved successfully")
                     .success(true)
-                    .data(catDTO)
+                    .data(mapper.toDTO(savedCat))
                     .error(false)
                     .build();
 
@@ -125,5 +111,15 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
         }
         dto.setId(id);
         return saveItem(dto);
+    }
+
+    private <T> ApiResponse<PaginatedResponse<T>> buildSuccessResponse(Page<T> page, String message) {
+        return ApiResponse.<PaginatedResponse<T>>builder()
+                .status(HttpStatus.OK.value())
+                .message(message)
+                .success(true)
+                .error(false)
+                .data(buildPaginatedResponse(page))
+                .build();
     }
 }

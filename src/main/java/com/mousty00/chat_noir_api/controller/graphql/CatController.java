@@ -2,6 +2,7 @@ package com.mousty00.chat_noir_api.controller.graphql;
 
 import com.mousty00.chat_noir_api.dto.api.ApiResponse;
 import com.mousty00.chat_noir_api.dto.cat.CatDTO;
+import com.mousty00.chat_noir_api.dto.cat.CatFilterDTO;
 import com.mousty00.chat_noir_api.dto.cat.CatRequestDTO;
 import com.mousty00.chat_noir_api.dto.api.PaginatedResponse;
 import com.mousty00.chat_noir_api.service.CatService;
@@ -25,7 +26,8 @@ public class CatController {
             @Argument int page, 
             @Argument int size,
             @Argument String category) {
-        return service.getCats(page, size, category);
+        CatFilterDTO filterDTO = CatFilterDTO.builder().category(category).build();
+        return service.getCats(page, size, filterDTO);
     }
 
     @QueryMapping
