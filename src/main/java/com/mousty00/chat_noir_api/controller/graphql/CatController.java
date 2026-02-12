@@ -23,8 +23,9 @@ public class CatController {
     @QueryMapping
     public ApiResponse<PaginatedResponse<CatDTO>> allCats(
             @Argument int page, 
-            @Argument int size) {
-        return service.getCats(page, size);
+            @Argument int size,
+            @Argument String category) {
+        return service.getCats(page, size, category);
     }
 
     @QueryMapping

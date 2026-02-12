@@ -6,6 +6,7 @@ import com.mousty00.chat_noir_api.dto.cat.CatDTO;
 import com.mousty00.chat_noir_api.dto.cat.CatRequestDTO;
 import com.mousty00.chat_noir_api.entity.Cat;
 import com.mousty00.chat_noir_api.entity.CatCategory;
+import com.mousty00.chat_noir_api.enums.EPAGE;
 import com.mousty00.chat_noir_api.exception.CatException;
 import com.mousty00.chat_noir_api.generic.GenericService;
 import com.mousty00.chat_noir_api.mapper.CatMapper;
@@ -14,7 +15,9 @@ import com.mousty00.chat_noir_api.repository.CatRepository;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -37,11 +40,28 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
         this.catCategoryRepository = catCategoryRepository;
     }
 
-    public ApiResponse<PaginatedResponse<CatDTO>> getCats(Integer page, Integer size) {
-        if (page == null || size == null) {
-            return getPagedItems(null);
+    public ApiResponse<PaginatedResponse<CatDTO>> getCats(Integer pageNumber, Integer size, String category) {
+        if (pageNumber == null) pageNumber = 0;
+        if (size == null) size = EPAGE.DEFAULT_SIZE.size;
+
+        Pageable request = PageRequest.of(pageNumber,size);
+        Page<CatDTO> page;
+
+        if (category != null) {
+            page = repo.findAllByCategory_Name(category, request).map(mapper::toDTO);
+        } else {
+            page = repo.findAll(request).map(mapper::toDTO);
         }
-        return getPagedItems(PageRequest.of(page, size));
+
+        PaginatedResponse<CatDTO> data = buildPaginatedResponse(page);
+
+        return ApiResponse.<PaginatedResponse<CatDTO>>builder()
+                .status(HttpStatus.OK.value())
+                .message("page retrieved successfully")
+                .success(true)
+                .error(false)
+                .data(data)
+                .build();
     }
 
     public ApiResponse<CatDTO> getCatById(UUID id) {

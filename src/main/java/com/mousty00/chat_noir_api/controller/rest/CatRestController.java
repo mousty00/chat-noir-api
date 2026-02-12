@@ -24,8 +24,8 @@ public class CatRestController {
     private final CatMediaService mediaService;
 
     @GetMapping("/cats")
-    public ApiResponse<PaginatedResponse<CatDTO>> getCats(Integer page, Integer size) {
-        return service.getCats(page, size);
+    public ApiResponse<PaginatedResponse<CatDTO>> getCats(Integer page, Integer size, String category) {
+        return service.getCats(page, size, category);
     }
 
     @GetMapping("/cats/{id}")
