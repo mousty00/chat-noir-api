@@ -1,94 +1,138 @@
-# Cat API - Chat Noir 
+# Chat Noir API
 
-### A simple yet powerful and modern API designed to serve high-quality cat media. 
-### The API supports dynamic content types (Images, GIFs, and Cartoons) and provides media files optimized for different device formats (Desktop and Phone Wallpapers).
+**A modern cat media API with REST + GraphQL support (work in progress..)**
 
+---
 
-## Technology Stack
-### This project leverages the cutting-edge features of the latest Java and Spring Boot ecosystem.
+## Quick Start
 
-| Component | Version | Notes |
-| --- | --- | --- |
-| **Java** | **25** | Utilizes the latest language features (e.g., Records, Pattern Matching). |
-| **Spring Boot** | **4.0.0** |  |
-| **Framework** | Spring Web MVC, Spring Data JPA |  |
-| **Database** | PostgreSQL | Uses native `UUID` types for primary keys. |
+```bash
+git clone https://github.com/mousty00/chat-noir-api.git
+cd chat-noir-api
+./mvnw spring-boot:run
+```
 
+**API:** `http://localhost:8080/api`  
+**GraphQL:** `http://localhost:8080/api/graphql`
+
+---
+
+## Tech Stack
+
+| Component | Version |
+|-----------|---------|
+| Java | 25 |
+| Spring Boot | 4.0.0 |
+| DB | PostgreSQL 16+ |
+| API | REST + GraphQL |
+
+---
 
 ## Core Features
-* **Multi-Format Media:** Each cat entry can provide multiple media files optimized for different use cases.
-* **Category-Based Content:** Media style is grouped by category (`Fluffy`, `Cartoon`, `Sleek`).
-* **UUID Primary Keys:** All core entities use UUIDs for modern, distributed, and secure identification.
-* **User Favorites:** Support for authenticated users to manage their preferred cat media.
 
+- **Multi-format media** - GIFs, PNGs, JPEGs
+- **Device optimized** - Desktop & Mobile wallpapers
+- **Dual API** - REST endpoints + GraphQL queries
+- **UUID keys** - Distributed-ready IDs
+- **Subscription plans** - Free, Pro, Enterprise
+- **2 auth methods** - JWT (users) + API keys (3rd party)
 
-## Data Model Overview
-### The database schema (PostgreSQL) is designed for flexibility and clean data separation:
+---
 
-* **`cat_category`**: Defines the group (e.g., 'Cartoon') and the `media_type_hint` (e.g., 'cartoon').
-* **`cat`**: The abstract concept of a cat (e.g., 'Garfield'), linked to a category. Includes the `source_name` for attribution.
-* **`cat_media_file`**: Stores the actual media URLs. Crucially, it includes the `media_format` ('Desktop', 'Mobile', 'Original') and resolution details.
-* **`user` & `user_favorite**`: Standard user model and a join table for saving favorite media files.
-
-
-## Getting Started###Prerequisites* Java 25 JDK
-* Maven or Gradle
-* PostgreSQL instance
-
-
-### Running Locally. **Clone the Repository:**
-```bash
-git clone https://github.com/mousty00/chat_noir_api.git
-cd chat_noir_api
+## Data Model
 
 ```
-
-
-2. **Configure Database:** Update `application.yml` or `application.properties` with PostgreSQL credentials.
-```yaml
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/catdb
-    username: your_username
-    password: your_password
-  jpa:
-    hibernate:
-      ddl-auto: update
-
+cat_category ──┬── cat ──┬── cat_media
+               │         │
+user_role ──┬── user ────┴── user_favorite
+            │      │
+subscription_plan ─┴── user_api_key
 ```
 
+---
 
-3. **Build and Run:**
-```bash
-./mvnw clean install
-./mvnw spring-boot:run
+## REST Endpoints
 
+| Method | Endpoint | Description |
+|--------|---------|-------------|
+| `GET` | `/api/cats` | List cats (paginated) |
+| `GET` | `/api/cats/random` | Random cat |
+| `GET` | `/api/cats/{id}` | Get by ID |
+| `POST` | `/api/cats` | Create (admin) |
+| `PUT` | `/api/cats/{id}` | Update (admin) |
+| `DELETE` | `/api/cats/{id}` | Delete (admin) |
+
+**Filters:** `?category=Fluffy&color=black&page=0&size=20`
+
+---
+
+## GraphQL
+
+**Endpoint:** `POST /api/graphql`
+
+```graphql
+{
+  catById(id: '') {
+    id, name, color, category, image, sourceNam
+  }
+}
 ```
 
+---
+
+## Error Codes
+
+| Code | Status | Meaning |
+|------|--------|---------|
+| `CAT_001` | 404 | Cat not found |
+| `CAT_002` | 404 | Category not found |
+| `AUTH_001` | 401 | Invalid credentials |
+| `DB_001` | 409 | Duplicate entry |
+| `VAL_001` | 400 | Validation failed |
+
+---
+
+## Subscription Plans
+
+| Plan | Rate/hr | Favorites | GIF | Wallpaper |
+|------|---------|-----------|-----|-----------|
+| Free | 60 | 20 | ✅ | ❌ |
+| Pro | 1,000 | 200 | ✅ | ✅ |
+| Enterprise | Custom | ∞ | ✅ | ✅ |
+
+---
+
+## Auth
+
+```
+# JWT (users)
+Authorization: Bearer <token>
+```
+
+```
+# API Key
+X-API-Key: <key>
+```
+
+---
+
+## DB Schema (Core)
+
+```sql
+cat (id UUID, name, color, category_id)
+cat_media (id UUID, cat_id, media_format, content_url)
+cat_category (id UUID, name, media_type_hint)
+user (id UUID, username, email, plan_id)
+subscription_plan (id UUID, name, monthly_price, api_rate_limit)
+```
+
+---
+
+## Prerequisites
+
+- Java 25
+- PostgreSQL 16+
+- Maven/Gradle
 
 
-The application will start on `http://localhost:8080`.
-
-
-## API Endpoints
-
-### All cats.
-
-| Method | Endpoint | Description |
-| --- | --- | --- |
-| `GET` | `/api/v1/cats` | Returns a list of cats paginated. |
-
-### Random Cat RetrievalGet a single random cat.
-
-| Method | Endpoint | Description |
-| --- | --- | --- |
-| `GET` | `/api/v1/cats/random` | Returns a random Cat with its associated media files. |
-
-### Filter by Category and FormatRetrieve a list of cats filtered by their category and the required media format (e.g., a phone wallpaper).
-
-| Method | Endpoint | Description |
-| --- | --- | --- |
-| `GET` | `/api/v1/cats/category/{category}` | Returns all cats in a specific category (e.g., `fluffy`). |
-| `GET` | `/api/v1/cats/category/cartoon?format=Desktop` | Returns cartoon cats, specifically providing the desktop wallpaper link. |
-
-
+Purr-fect cat media, served fast.
