@@ -6,6 +6,10 @@ import com.mousty00.chat_noir_api.dto.auth.LoginResponse;
 import com.mousty00.chat_noir_api.dto.auth.RegisterRequest;
 import com.mousty00.chat_noir_api.entity.User;
 import com.mousty00.chat_noir_api.entity.UserRole;
+import com.mousty00.chat_noir_api.exception.ApiException;
+import com.mousty00.chat_noir_api.exception.AuthenticationException;
+import com.mousty00.chat_noir_api.exception.DataIntegrityException;
+import com.mousty00.chat_noir_api.exception.ResourceNotFoundException;
 import com.mousty00.chat_noir_api.repository.UserRepository;
 import com.mousty00.chat_noir_api.repository.UserRoleRepository;
 import com.mousty00.chat_noir_api.security.JwtUtil;
@@ -29,12 +33,11 @@ public class AuthService {
     
     @Transactional
     public ApiResponse<LoginResponse> login(LoginRequest request) {
-        try {
             User user = userRepository.findByUsernameWithRole(request.getUsername())
-                    .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+                    .orElseThrow(AuthenticationException::badCredentials);
 
             if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-                throw new RuntimeException("Invalid credentials");
+                throw AuthenticationException.badCredentials();
             }
 
             Set<String> roles = new HashSet<>();
@@ -64,54 +67,37 @@ public class AuthService {
                     .data(response)
                     .build();
 
-        } catch (Exception e) {
-            return ApiResponse.<LoginResponse>builder()
-                    .status(401)
-                    .error(true)
-                    .success(false)
-                    .message("Invalid credentials")
-                    .build();
-        }
     }
     
     @Transactional
     public ApiResponse<String> register(RegisterRequest request) {
-        try {
-            if (userRepository.existsByUsername(request.getUsername())) {
-                throw new RuntimeException("Username already exists");
-            }
-            if (userRepository.existsByEmail(request.getEmail())) {
-                throw new RuntimeException("Email already exists");
-            }
-
-            UserRole defaultRole = userRoleRepository.findByName("USER")
-                .orElseThrow(() -> new RuntimeException("Default role not found"));
-            User user = User.builder()
-                    .username(request.getUsername())
-                    .email(request.getEmail())
-                    .password(passwordEncoder.encode(request.getPassword()))
-                    .isAdmin(false)
-                    .role(defaultRole)
-                    .build();
-
-            userRepository.save(user);
-
-            return ApiResponse.<String>builder()
-                    .status(201)
-                    .error(false)
-                    .success(true)
-                    .message("User registered successfully")
-                    .data("")
-                    .build();
-
-        } catch (RuntimeException e) {
-            return ApiResponse.<String>builder()
-                    .status(400)
-                    .error(true)
-                    .success(false)
-                    .message(e.getMessage())
-                    .build();
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw AuthenticationException.accessDenied();
         }
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw DataIntegrityException.uniqueConstraint("Email");
+        }
+
+        UserRole defaultRole = userRoleRepository.findByName("USER")
+            .orElseThrow(() -> new ResourceNotFoundException("Default role not found","ROLE_001"));
+        User user = User.builder()
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .isAdmin(false)
+                .role(defaultRole)
+                .build();
+
+        userRepository.save(user);
+
+        return ApiResponse.<String>builder()
+                .status(201)
+                .error(false)
+                .success(true)
+                .message("User registered successfully")
+                .data("")
+                .build();
+
     }
     
     @Transactional

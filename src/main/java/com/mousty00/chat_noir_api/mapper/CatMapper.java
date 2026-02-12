@@ -4,6 +4,7 @@ import com.mousty00.chat_noir_api.dto.cat.CatDTO;
 import com.mousty00.chat_noir_api.dto.cat.CatRequestDTO;
 import com.mousty00.chat_noir_api.entity.Cat;
 import com.mousty00.chat_noir_api.entity.CatCategory;
+import com.mousty00.chat_noir_api.generic.GenericMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -11,7 +12,7 @@ import org.mapstruct.Named;
 import java.util.UUID;
 
 @Mapper(componentModel = "spring", uses = {CatCategoryMapper.class})
-public interface CatMapper extends BaseMapper<Cat, CatDTO> {
+public interface CatMapper extends GenericMapper<Cat, CatDTO> {
 
     @Mapping(target = "media", ignore = true)
     @Mapping(target = "id", ignore = true)

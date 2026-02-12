@@ -1,14 +1,16 @@
 package com.mousty00.chat_noir_api.service;
 
+import com.mousty00.chat_noir_api.dto.api.ApiResponse;
+import com.mousty00.chat_noir_api.dto.api.PaginatedResponse;
 import com.mousty00.chat_noir_api.dto.cat.CatDTO;
 import com.mousty00.chat_noir_api.dto.cat.CatRequestDTO;
 import com.mousty00.chat_noir_api.entity.Cat;
 import com.mousty00.chat_noir_api.entity.CatCategory;
+import com.mousty00.chat_noir_api.exception.CatException;
+import com.mousty00.chat_noir_api.generic.GenericService;
 import com.mousty00.chat_noir_api.mapper.CatMapper;
-import com.mousty00.chat_noir_api.dto.api.PaginatedResponse;
 import com.mousty00.chat_noir_api.repository.CatCategoryRepository;
 import com.mousty00.chat_noir_api.repository.CatRepository;
-import com.mousty00.chat_noir_api.dto.api.ApiResponse;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,10 +20,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-@Service
-public class CatService extends BaseService<Cat, CatDTO, CatRepository, CatMapper> {
+import static com.mousty00.chat_noir_api.exception.ResourceNotFoundException.ResourceType;
 
-    private final Logger log = LoggerFactory.getLogger(CatService.class);
+@Service
+public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMapper> {
+
+    private static final Logger log = LoggerFactory.getLogger(CatService.class);
     private final CatCategoryRepository catCategoryRepository;
 
     public CatService(
@@ -37,74 +41,69 @@ public class CatService extends BaseService<Cat, CatDTO, CatRepository, CatMappe
         if (page == null || size == null) {
             return getPagedItems(null);
         }
-
         return getPagedItems(PageRequest.of(page, size));
     }
 
     public ApiResponse<CatDTO> getCatById(UUID id) {
-        return getItemById(id);
+        try {
+            return getItemById(id, ResourceType.CAT);
+        } catch (Exception e) {
+            throw CatException.catNotFound(id);
+        }
     }
 
     @Transactional
     public ApiResponse<?> deleteCat(UUID id) {
-        return deleteItemById(id);
+        try {
+            return deleteItemById(id);
+        } catch (Exception e) {
+            log.error("Error deleting cat with id: {}", id, e);
+            throw new CatException("Error deleting cat: " + e.getMessage(),
+                    CatException.CatErrorCode.CAT_DELETE_ERROR, e);
+        }
     }
 
     @Transactional
     public ApiResponse<CatDTO> saveCat(CatRequestDTO request) {
         try {
-            // Validate category exists
             if (request.getCategoryId() == null) {
-                return ApiResponse.<CatDTO>builder()
-                        .status(HttpStatus.BAD_REQUEST.value())
-                        .message("Category ID is required")
-                        .success(false)
-                        .error(true)
-                        .build();
+                throw CatException.categoryRequired();
             }
 
             CatCategory category = catCategoryRepository.findById(request.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Category not found with id: " + request.getCategoryId()));
+                    .orElseThrow(() -> CatException.categoryNotFound(request.getCategoryId()));
 
             Cat cat = mapper.toEntityFromRequest(request);
             cat.setCategory(category);
             Cat savedCat = repo.save(cat);
 
-            log.info("Cat saved successfully with ID: {}, category: {}", savedCat.getId(), savedCat.getCategory().getName());
+            log.info("Cat saved successfully with ID: {}, category: {}",
+                    savedCat.getId(), savedCat.getCategory().getName());
 
             CatDTO catDTO = mapper.toDTO(savedCat);
 
             return ApiResponse.<CatDTO>builder()
                     .status(HttpStatus.OK.value())
-                    .message("Cat saved!")
+                    .message("Cat saved successfully")
                     .success(true)
                     .data(catDTO)
                     .error(false)
                     .build();
 
+        } catch (CatException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Error saving cat: {}", e.getMessage(), e);
-            return ApiResponse.<CatDTO>builder()
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message("Error saving cat: " + e.getMessage())
-                    .success(false)
-                    .error(true)
-                    .build();
+            throw CatException.saveError(e.getMessage(), e);
         }
     }
 
     @Transactional
     public ApiResponse<CatDTO> updateCat(UUID id, CatDTO dto) {
         if (!repo.existsById(id)) {
-            return ApiResponse.<CatDTO>builder()
-                    .status(HttpStatus.NOT_FOUND.value())
-                    .message("Cat not found")
-                    .success(false)
-                    .error(true)
-                    .build();
+            throw CatException.catNotFound(id);
         }
         dto.setId(id);
         return saveItem(dto);
     }
-
 }

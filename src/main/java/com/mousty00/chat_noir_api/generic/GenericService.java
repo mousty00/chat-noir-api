@@ -1,7 +1,8 @@
-package com.mousty00.chat_noir_api.service;
+package com.mousty00.chat_noir_api.generic;
 
 import com.mousty00.chat_noir_api.enums.EPAGE;
-import com.mousty00.chat_noir_api.mapper.BaseMapper;
+import com.mousty00.chat_noir_api.exception.ResourceNotFoundException;
+import com.mousty00.chat_noir_api.exception.ResourceNotFoundException.ResourceType;
 import com.mousty00.chat_noir_api.dto.api.PaginatedResponse;
 import com.mousty00.chat_noir_api.dto.api.ApiResponse;
 import jakarta.transaction.Transactional;
@@ -16,7 +17,7 @@ import org.springframework.http.HttpStatus;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-public abstract class BaseService<ENTITY, DTO, REPO extends JpaRepository<ENTITY, UUID>, MAPPER extends BaseMapper<ENTITY, DTO>> {
+public abstract class GenericService<ENTITY, DTO, REPO extends JpaRepository<ENTITY, UUID>, MAPPER extends GenericMapper<ENTITY, DTO>> {
 
     protected final REPO repo;
     protected final MAPPER mapper;
@@ -43,8 +44,8 @@ public abstract class BaseService<ENTITY, DTO, REPO extends JpaRepository<ENTITY
 
     }
 
-    public ApiResponse<DTO> getItemById(UUID id) {
-        Result<DTO> result = getDtoResult(id);
+    public ApiResponse<DTO> getItemById(UUID id, ResourceType resourceType) {
+        Result<DTO> result = getDtoResult(id, resourceType);
 
         return ApiResponse.<DTO>builder()
                 .status(result.status().value())
@@ -98,10 +99,10 @@ public abstract class BaseService<ENTITY, DTO, REPO extends JpaRepository<ENTITY
         return response;
     }
 
-    private @NonNull Result<DTO> getDtoResult(UUID id) {
+    private @NonNull Result<DTO> getDtoResult(UUID id, ResourceType resourceType) {
         return repo.findById(id)
                 .map(entity -> new Result<>(mapper.toDTO(entity), true, HttpStatus.OK, ""))
-                .orElse(new Result<>(null, false, HttpStatus.NOT_FOUND,"not found"));
+                .orElseThrow(() -> ResourceNotFoundException.of(resourceType, id));
     }
 
     private record Result<DTO>(DTO data, boolean isPresent, HttpStatus status, String message) { }
