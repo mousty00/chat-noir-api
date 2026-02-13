@@ -23,8 +23,8 @@ public class CatController {
 
     @QueryMapping
     public ApiResponse<PaginatedResponse<CatDTO>> allCats(
-            @Argument int page, 
-            @Argument int size,
+            @Argument Integer page,
+            @Argument Integer size,
             @Argument String category,
             @Argument String color,
             @Argument String name,
