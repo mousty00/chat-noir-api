@@ -36,10 +36,12 @@ public class User {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", nullable = false)
+    @ToString.Exclude
     private UserRole role;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id")
+    @ToString.Exclude
     private SubscriptionPlan plan;
 
     @Column(name = "subscription_start_date")
@@ -51,7 +53,12 @@ public class User {
     @Column(name = "stripe_subscription_id")
     private String stripeSubscriptionId;
 
+    @Column(name = "created_at")
+    @ColumnDefault(value = "now()")
+    private Instant createdAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_media_id")
+    @ToString.Exclude
     private UserMedia profileMedia;
 }

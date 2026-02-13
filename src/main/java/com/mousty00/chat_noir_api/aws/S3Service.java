@@ -1,6 +1,7 @@
 package com.mousty00.chat_noir_api.aws;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.ResponseBytes;
@@ -14,6 +15,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class S3Service {
@@ -51,6 +53,11 @@ public class S3Service {
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload file to S3", e);
         }
+    }
+
+    @Async
+    public CompletableFuture<String> uploadFileAsync(MultipartFile file, String key) {
+        return CompletableFuture.completedFuture(uploadFile(file, key));
     }
 
     /**

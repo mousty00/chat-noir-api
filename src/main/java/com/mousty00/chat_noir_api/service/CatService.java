@@ -65,8 +65,7 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
             return deleteItemById(id);
         } catch (Exception e) {
             log.error("Error deleting cat with id: {}", id, e);
-            throw new CatException("Error deleting cat: " + e.getMessage(),
-                    CatErrorCode.CAT_DELETE_ERROR, e);
+            throw catDeleteError(e);
         }
     }
 
@@ -99,7 +98,7 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
             throw e;
         } catch (Exception e) {
             log.error("Error saving cat: {}", e.getMessage(), e);
-            throw saveError(e.getMessage(), e);
+            throw catSaveError(e.getMessage(), e);
         }
     }
 

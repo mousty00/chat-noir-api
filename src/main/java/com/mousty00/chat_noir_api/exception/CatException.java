@@ -11,11 +11,12 @@ public class CatException extends ApiException {
     public enum CatErrorCode {
         CAT_NOT_FOUND("CAT_001", HttpStatus.NOT_FOUND),
         CATEGORY_NOT_FOUND("CAT_002", HttpStatus.NOT_FOUND),
-        CATEGORY_REQUIRED("CAT_003", HttpStatus.BAD_REQUEST),
-        DUPLICATE_CAT("CAT_004", HttpStatus.CONFLICT),
-        INVALID_CAT_DATA("CAT_005", HttpStatus.BAD_REQUEST),
-        CAT_SAVE_ERROR("CAT_006", HttpStatus.INTERNAL_SERVER_ERROR),
-        CAT_DELETE_ERROR("CAT_007", HttpStatus.INTERNAL_SERVER_ERROR);
+        CAT_MEDIA_NOT_FOUND("CAT_003", HttpStatus.NOT_FOUND),
+        CATEGORY_REQUIRED("CAT_004", HttpStatus.BAD_REQUEST),
+        DUPLICATE_CAT("CAT_005", HttpStatus.CONFLICT),
+        INVALID_CAT_DATA("CAT_006", HttpStatus.BAD_REQUEST),
+        CAT_SAVE_ERROR("CAT_007", HttpStatus.INTERNAL_SERVER_ERROR),
+        CAT_DELETE_ERROR("CAT_008", HttpStatus.INTERNAL_SERVER_ERROR);
 
         private final String code;
         private final HttpStatus status;
@@ -35,13 +36,17 @@ public class CatException extends ApiException {
         super(message, errorCode.getCode(), errorCode.getStatus(), cause);
     }
 
-    public static CatException deleteError(Exception e) {
+    public static CatException catDeleteError(Exception e) {
         return new CatException("Error deleting cat: " + e.getMessage(),
                 CatException.CatErrorCode.CAT_DELETE_ERROR, e);
     }
 
     public static CatException catNotFound(UUID id) {
         return new CatException("Cat not found with id: " + id, CatErrorCode.CAT_NOT_FOUND);
+    }
+
+    public static CatException catMediaNotFound(UUID id) {
+        return new CatException("cat media not found" + id, CatErrorCode.CAT_NOT_FOUND);
     }
 
     public static CatException categoryNotFound(UUID id) {
@@ -52,7 +57,7 @@ public class CatException extends ApiException {
         return new CatException("Category ID is required", CatErrorCode.CATEGORY_REQUIRED);
     }
 
-    public static CatException saveError(String message, Throwable cause) {
+    public static CatException catSaveError(String message, Throwable cause) {
         return new CatException("Error saving cat: " + message, CatErrorCode.CAT_SAVE_ERROR, cause);
     }
 }
