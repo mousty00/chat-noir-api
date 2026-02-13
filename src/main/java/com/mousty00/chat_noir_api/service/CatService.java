@@ -26,6 +26,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+import static com.mousty00.chat_noir_api.exception.CatException.*;
+
 @Service
 public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMapper> {
 
@@ -43,20 +45,17 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
 
     public ApiResponse<PaginatedResponse<CatDTO>> getCats(Integer page, Integer size, CatFilterDTO filterDTO) {
         Pageable pageable = PageDefaults.of(page, size);
-
         Specification<Cat> spec = CatSpecifications.filter(filterDTO);
+        Page<CatDTO> pageResult = repo.findAll(spec, pageable).map(mapper::toDTO);
 
-        Page<CatDTO> pageResult = repo.findAll(spec, pageable)
-                .map(mapper::toDTO);
-
-        return buildSuccessResponse(pageResult, "Search completed successfully");
+        return buildSuccessPageResponse(pageResult, "Cats retrieved successfully");
     }
 
     public ApiResponse<CatDTO> getCatById(UUID id) {
         try {
             return getItemById(id, ResourceType.CAT);
         } catch (Exception e) {
-            throw CatException.catNotFound(id);
+            throw catNotFound(id);
         }
     }
 
@@ -67,7 +66,7 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
         } catch (Exception e) {
             log.error("Error deleting cat with id: {}", id, e);
             throw new CatException("Error deleting cat: " + e.getMessage(),
-                    CatException.CatErrorCode.CAT_DELETE_ERROR, e);
+                    CatErrorCode.CAT_DELETE_ERROR, e);
         }
     }
 
@@ -75,11 +74,11 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
     public ApiResponse<CatDTO> saveCat(CatRequestDTO request) {
         try {
             if (request.getCategoryId() == null) {
-                throw CatException.categoryRequired();
+                throw categoryRequired();
             }
 
             CatCategory category = catCategoryRepository.findById(request.getCategoryId())
-                    .orElseThrow(() -> CatException.categoryNotFound(request.getCategoryId()));
+                    .orElseThrow(() -> categoryNotFound(request.getCategoryId()));
 
             Cat cat = mapper.toEntityFromRequest(request);
             cat.setCategory(category);
@@ -100,26 +99,16 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
             throw e;
         } catch (Exception e) {
             log.error("Error saving cat: {}", e.getMessage(), e);
-            throw CatException.saveError(e.getMessage(), e);
+            throw saveError(e.getMessage(), e);
         }
     }
 
     @Transactional
     public ApiResponse<CatDTO> updateCat(UUID id, CatDTO dto) {
         if (!repo.existsById(id)) {
-            throw CatException.catNotFound(id);
+            throw catNotFound(id);
         }
         dto.setId(id);
         return saveItem(dto);
-    }
-
-    private <T> ApiResponse<PaginatedResponse<T>> buildSuccessResponse(Page<T> page, String message) {
-        return ApiResponse.<PaginatedResponse<T>>builder()
-                .status(HttpStatus.OK.value())
-                .message(message)
-                .success(true)
-                .error(false)
-                .data(buildPaginatedResponse(page))
-                .build();
     }
 }

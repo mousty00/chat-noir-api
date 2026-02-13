@@ -1,6 +1,6 @@
 extend type Query {
     catById(id: ID!): ApiResponseCat
-    allCats(page: Int, size: Int, category: String): ApiResponsePaginatedCat
+    allCats(page: Int, size: Int, category: String, color: String, name: String , source: String): ApiResponsePaginatedCat
 }
 
 extend type Mutation {

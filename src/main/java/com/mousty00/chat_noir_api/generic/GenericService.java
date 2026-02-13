@@ -99,6 +99,16 @@ public abstract class GenericService<ENTITY, DTO, REPO extends JpaRepository<ENT
         return response;
     }
 
+    public <T> ApiResponse<PaginatedResponse<T>> buildSuccessPageResponse(Page<T> page, String message) {
+        return ApiResponse.<PaginatedResponse<T>>builder()
+                .status(HttpStatus.OK.value())
+                .message(message)
+                .success(true)
+                .error(false)
+                .data(buildPaginatedResponse(page))
+                .build();
+    }
+
     private @NonNull Result<DTO> getDtoResult(UUID id, ResourceType resourceType) {
         return repo.findById(id)
                 .map(entity -> new Result<>(mapper.toDTO(entity), true, HttpStatus.OK, ""))

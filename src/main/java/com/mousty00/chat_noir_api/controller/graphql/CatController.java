@@ -25,8 +25,12 @@ public class CatController {
     public ApiResponse<PaginatedResponse<CatDTO>> allCats(
             @Argument int page, 
             @Argument int size,
-            @Argument String category) {
-        CatFilterDTO filterDTO = CatFilterDTO.builder().category(category).build();
+            @Argument String category,
+            @Argument String color,
+            @Argument String name,
+            @Argument String source
+    ) {
+        CatFilterDTO filterDTO = new CatFilterDTO(category, color, name, source);
         return service.getCats(page, size, filterDTO);
     }
 
