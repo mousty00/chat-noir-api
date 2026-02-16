@@ -61,16 +61,12 @@ public class CatMediaService {
             }
 
             CatMedia catMedia = catMediaRepository.findByCatId(cat.getId())
-                    .orElseGet(() -> {
-                        CatMedia newMedia = new CatMedia();
-                        newMedia.setCatId(cat.getId());
-                        return newMedia;
-                    });
+                    .orElseGet(() -> CatMedia.builder().id(cat.getId()).build());
 
             String extension = FilenameUtils.getExtension(imageFile.getOriginalFilename());
             String sanitizedExtension = (extension != null && !extension.isEmpty()) ? extension : "jpg";
             String imageKey = String.format("users/%s/cats/%s/media-%d.%s", username, catId, System.currentTimeMillis(), sanitizedExtension);
-            String fileName = s3Service.uploadFile(imageFile, imageKey);
+            String fileName = s3Service.uploadFileAsync(imageFile, imageKey).get();
 
             cleanupOldMedia(catMedia);
             catMedia.setMediaKey(imageKey);
