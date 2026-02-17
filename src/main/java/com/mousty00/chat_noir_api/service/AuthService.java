@@ -7,12 +7,13 @@ import com.mousty00.chat_noir_api.dto.auth.RegisterRequest;
 import com.mousty00.chat_noir_api.entity.User;
 import com.mousty00.chat_noir_api.entity.UserRole;
 import com.mousty00.chat_noir_api.exception.AuthenticationException;
-import com.mousty00.chat_noir_api.exception.DataIntegrityException;
 import com.mousty00.chat_noir_api.exception.ResourceNotFoundException;
+import com.mousty00.chat_noir_api.exception.UserException;
 import com.mousty00.chat_noir_api.repository.UserRepository;
 import com.mousty00.chat_noir_api.repository.UserRoleRepository;
 import com.mousty00.chat_noir_api.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,26 +61,21 @@ public class AuthService {
                 .roles(List.copyOf(roles))
                 .build();
 
-        return ApiResponse.<LoginResponse>builder()
-                .status(200)
-                .error(false)
-                .success(true)
-                .data(response)
-                .build();
-
+        return ApiResponse.success(HttpStatus.OK.value(), "Login successful", response);
     }
 
     @Transactional
     public ApiResponse<String> register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw AuthenticationException.accessDenied();
+            return ApiResponse.error(HttpStatus.CONFLICT.value(), "Username already exists");
         }
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw DataIntegrityException.uniqueConstraint("Email");
+            return ApiResponse.error(HttpStatus.CONFLICT.value(), "Email already exists");
         }
 
         UserRole defaultRole = userRoleRepository.findByName("USER")
                 .orElseThrow(() -> new ResourceNotFoundException("Default role not found", "ROLE_001"));
+
         User user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
@@ -91,21 +87,17 @@ public class AuthService {
 
         userRepository.save(user);
 
-        return ApiResponse.<String>builder()
-                .status(201)
-                .error(false)
-                .success(true)
-                .message("User registered successfully")
-                .data("")
-                .build();
-
+        return ApiResponse.success(HttpStatus.CREATED.value(), "User registered successfully", "");
     }
 
     @Transactional
-    public void promoteToAdmin(String username) {
+    public ApiResponse<String> promoteToAdmin(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(UserException::userNotFound);
+
         user.setAdmin(true);
         userRepository.save(user);
+
+        return ApiResponse.success("User promoted to admin successfully", username);
     }
 }

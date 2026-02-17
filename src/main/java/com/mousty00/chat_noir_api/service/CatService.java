@@ -1,5 +1,6 @@
 package com.mousty00.chat_noir_api.service;
 
+import com.mousty00.chat_noir_api.aws.S3Service;
 import com.mousty00.chat_noir_api.dto.api.ApiResponse;
 import com.mousty00.chat_noir_api.dto.api.PaginatedResponse;
 import com.mousty00.chat_noir_api.dto.cat.CatDTO;
@@ -24,6 +25,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.UUID;
 
 import static com.mousty00.chat_noir_api.exception.CatException.*;
@@ -33,14 +35,16 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
 
     private static final Logger log = LoggerFactory.getLogger(CatService.class);
     private final CatCategoryRepository catCategoryRepository;
+    private final S3Service s3Service;
 
     public CatService(
             CatRepository repo,
             CatMapper mapper,
-            CatCategoryRepository catCategoryRepository
-    ) {
+            CatCategoryRepository catCategoryRepository,
+            S3Service s3Service) {
         super(repo, mapper);
         this.catCategoryRepository = catCategoryRepository;
+        this.s3Service = s3Service;
     }
 
     public ApiResponse<PaginatedResponse<CatDTO>> getCats(Integer page, Integer size, CatFilterDTO filterDTO) {
@@ -86,13 +90,11 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
             log.info("Cat saved successfully with ID: {}, category: {}",
                     savedCat.getId(), savedCat.getCategory().getName());
 
-            return ApiResponse.<CatDTO>builder()
-                    .status(HttpStatus.OK.value())
-                    .message("Cat saved successfully")
-                    .success(true)
-                    .data(mapper.toDTO(savedCat))
-                    .error(false)
-                    .build();
+            return ApiResponse.success(
+                    HttpStatus.OK.value(),
+                    "Cat saved successfully",
+                    mapper.toDTO(savedCat)
+            );
 
         } catch (CatException e) {
             throw e;
@@ -109,5 +111,20 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
         }
         dto.setId(id);
         return saveItem(dto);
+    }
+
+    public ApiResponse<String> downloadCatMedia(UUID id) {
+        Cat cat = repo.findById(id).orElseThrow(() -> catNotFound(id));
+
+        if (cat.getMedia() == null || cat.getMedia().getMediaKey() == null) {
+            throw CatException.catMediaNotFound(id);
+        }
+
+        String downloadUrl = s3Service.generatePresignedUrl(
+                cat.getMedia().getMediaKey(),
+                Duration.ofMinutes(15)
+        );
+
+        return ApiResponse.success("Cat media ready to be downloaded!", downloadUrl);
     }
 }

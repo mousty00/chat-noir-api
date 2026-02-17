@@ -24,7 +24,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -62,7 +61,7 @@ public class UserService extends GenericService<User, UserDTO, UserRepository, U
         try {
             return getItemById(id, ResourceType.USER);
         } catch (Exception e) {
-            throw UserException.userNotFound(id);
+            throw UserException.userNotFoundById(id);
         }
     }
 
@@ -91,7 +90,7 @@ public class UserService extends GenericService<User, UserDTO, UserRepository, U
             mediaService.validateImageFile(imageFile);
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-            User user = repo.findById(userId).orElseThrow(() -> UserException.userNotFound(userId));
+            User user = repo.findById(userId).orElseThrow(() -> UserException.userNotFoundById(userId));
             String authUsername = Objects.requireNonNull(auth).getName();
 
             if (!authUsername.equals(user.getUsername())) {
@@ -110,21 +109,18 @@ public class UserService extends GenericService<User, UserDTO, UserRepository, U
 
             String url = s3Service.generatePresignedUrl(imageKey);
 
-            return ApiResponse.<String>builder()
-                    .status(HttpStatus.OK.value())
-                    .message("profile image uploaded successfully %s".formatted(fileName))
-                    .error(false)
-                    .success(true)
-                    .data(url)
-                    .build();
+            return ApiResponse.success(
+                    HttpStatus.OK.value(),
+                    "Profile image uploaded successfully: %s".formatted(fileName),
+                    url
+            );
 
         } catch (IllegalArgumentException | NoSuchElementException e) {
             log.warn("Profile image upload validation failed: {}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+            return ApiResponse.badRequest(e.getMessage());
         } catch (Exception e) {
             log.error("Profile image upload failed for user {}: {}", userId, e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Failed to upload profile image", e);
+            return ApiResponse.internalError("Failed to upload profile image: " + e.getMessage());
         }
     }
 }

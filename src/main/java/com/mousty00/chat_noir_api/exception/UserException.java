@@ -38,8 +38,12 @@ public class UserException extends ApiException {
                 UserException.UserErrorCode.USER_DELETE_ERROR, e);
     }
 
-    public static UserException userNotFound(UUID id) {
+    public static UserException userNotFoundById(UUID id) {
         return new UserException("User not found with id: " + id, UserException.UserErrorCode.USER_NOT_FOUND);
+    }
+
+    public static UserException userNotFound() {
+        return new UserException("User not found", UserErrorCode.USER_NOT_FOUND);
     }
 
     public static UserException userMediaNotFound(UUID id) {

@@ -1,6 +1,6 @@
 package com.mousty00.chat_noir_api.exception;
 
-import com.mousty00.chat_noir_api.dto.api.ErrorResponse;
+import com.mousty00.chat_noir_api.dto.api.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
@@ -24,19 +24,28 @@ public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(ApiException.class)
-    public ResponseEntity<ErrorResponse> handleApiException(ApiException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> handleApiException(ApiException ex, HttpServletRequest request) {
         log.error("API Exception: {} - {}", ex.getErrorCode(), ex.getMessage(), ex);
-        ErrorResponse response = ErrorResponse.of(ex, request.getRequestURI());
+
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("path", request.getRequestURI());
+        errorDetails.put("errorCode", ex.getErrorCode());
 
         if (ex instanceof ValidationException && ((ValidationException) ex).getErrors() != null) {
-            response.withDetails(((ValidationException) ex).getErrors());
+            errorDetails.put("validationErrors", ((ValidationException) ex).getErrors());
         }
+
+        ApiResponse<Map<String, Object>> response = ApiResponse.error(
+                ex.getStatus().value(),
+                ex.getMessage(),
+                errorDetails
+        );
 
         return ResponseEntity.status(ex.getStatus()).body(response);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationExceptions(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> handleValidationExceptions(
             MethodArgumentNotValidException ex, HttpServletRequest request) {
 
         Map<String, String> errors = new HashMap<>();
@@ -46,15 +55,21 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
 
-        ValidationException validationEx = new ValidationException("Invalid input parameters", errors);
-        ErrorResponse response = ErrorResponse.of(validationEx, request.getRequestURI())
-                .withDetails(errors);
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("path", request.getRequestURI());
+        errorDetails.put("validationErrors", errors);
+
+        ApiResponse<Map<String, Object>> response = ApiResponse.error(
+                HttpStatus.BAD_REQUEST.value(),
+                "Invalid input parameters",
+                errorDetails
+        );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorResponse> handleConstraintViolationException(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> handleConstraintViolationException(
             ConstraintViolationException ex, HttpServletRequest request) {
 
         Map<String, String> errors = new HashMap<>();
@@ -62,71 +77,114 @@ public class GlobalExceptionHandler {
                 errors.put(violation.getPropertyPath().toString(), violation.getMessage())
         );
 
-        ValidationException validationEx = new ValidationException("Validation failed", errors);
-        ErrorResponse response = ErrorResponse.of(validationEx, request.getRequestURI())
-                .withDetails(errors);
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("path", request.getRequestURI());
+        errorDetails.put("validationErrors", errors);
+
+        ApiResponse<Map<String, Object>> response = ApiResponse.error(
+                HttpStatus.BAD_REQUEST.value(),
+                "Validation failed",
+                errorDetails
+        );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> handleDataIntegrityViolationException(
             DataIntegrityViolationException ex, HttpServletRequest request) {
 
         log.error("Data integrity violation: {}", ex.getMessage(), ex);
 
-        DataIntegrityException dataIntegrityEx;
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("path", request.getRequestURI());
+
+        String message;
+        String errorCode;
 
         if (ex.getCause() != null && ex.getCause().getMessage() != null) {
             String causeMessage = ex.getCause().getMessage().toLowerCase();
 
             if (causeMessage.contains("unique")) {
-                dataIntegrityEx = DataIntegrityException.uniqueConstraint("field");
+                message = "A record with this value already exists";
+                errorCode = "DB_001";
+                errorDetails.put("errorCode", errorCode);
             } else if (causeMessage.contains("foreign key")) {
-                dataIntegrityEx = DataIntegrityException.foreignKeyConstraint("record");
+                message = "Referenced record does not exist";
+                errorCode = "DB_002";
+                errorDetails.put("errorCode", errorCode);
             } else if (causeMessage.contains("not null")) {
-                dataIntegrityEx = DataIntegrityException.notNullConstraint("required");
+                message = "Required field cannot be null";
+                errorCode = "DB_003";
+                errorDetails.put("errorCode", errorCode);
             } else {
-                dataIntegrityEx = new DataIntegrityException(
-                        "Database constraint violation", "DB_004");
+                message = "Database constraint violation";
+                errorCode = "DB_004";
+                errorDetails.put("errorCode", errorCode);
             }
         } else {
-            dataIntegrityEx = new DataIntegrityException(
-                    "Database constraint violation", "DB_004");
+            message = "Database constraint violation";
+            errorCode = "DB_004";
+            errorDetails.put("errorCode", errorCode);
         }
 
-        ErrorResponse response = ErrorResponse.of(dataIntegrityEx, request.getRequestURI());
+        ApiResponse<Map<String, Object>> response = ApiResponse.error(
+                HttpStatus.CONFLICT.value(),
+                message,
+                errorDetails
+        );
+
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleBadCredentialsException(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> handleBadCredentialsException(
             BadCredentialsException ex, HttpServletRequest request) {
 
-        AuthenticationException authEx = AuthenticationException.badCredentials();
-        ErrorResponse response = ErrorResponse.of(authEx, request.getRequestURI());
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("path", request.getRequestURI());
+        errorDetails.put("errorCode", "AUTH_001");
+
+        ApiResponse<Map<String, Object>> response = ApiResponse.error(
+                HttpStatus.UNAUTHORIZED.value(),
+                "Invalid username or password",
+                errorDetails
+        );
+
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDeniedException(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> handleAccessDeniedException(
             AccessDeniedException ex, HttpServletRequest request) {
 
-        AuthenticationException authEx = AuthenticationException.accessDenied();
-        ErrorResponse response = ErrorResponse.of(authEx, request.getRequestURI());
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("path", request.getRequestURI());
+        errorDetails.put("errorCode", "AUTH_002");
+
+        ApiResponse<Map<String, Object>> response = ApiResponse.error(
+                HttpStatus.FORBIDDEN.value(),
+                "You don't have permission to access this resource",
+                errorDetails
+        );
+
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleAllUncaughtException(
+    public ResponseEntity<ApiResponse<Map<String, Object>>> handleAllUncaughtException(
             Exception ex, HttpServletRequest request) {
 
         log.error("Unhandled exception: {}", ex.getMessage(), ex);
 
-        ErrorResponse response = ErrorResponse.of(
-                HttpStatus.INTERNAL_SERVER_ERROR,
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("path", request.getRequestURI());
+        errorDetails.put("exceptionType", ex.getClass().getSimpleName());
+
+        ApiResponse<Map<String, Object>> response = ApiResponse.error(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "An unexpected error occurred",
-                request.getRequestURI()
+                errorDetails
         );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
