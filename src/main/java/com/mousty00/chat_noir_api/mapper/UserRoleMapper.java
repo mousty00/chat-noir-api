@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UserRoleMapper extends GenericMapper<UserRole, UserRoleDTO> {
-    
+
     @Override
     UserRoleDTO toDTO(UserRole userRole);
 

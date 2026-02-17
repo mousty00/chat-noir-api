@@ -21,8 +21,10 @@ public class CatMedia {
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(name = "cat_id", nullable = false)
-    private UUID catId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cat_id", nullable = false)
+    @ToString.Exclude
+    private Cat cat;
 
     @Column(name = "media_format", nullable = false, length = 20)
     private String mediaFormat;
@@ -32,5 +34,4 @@ public class CatMedia {
 
     @Column(name = "content_url", nullable = false, length = 512)
     private String contentUrl;
-
 }

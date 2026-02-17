@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import java.util.UUID;
 
 public class CatException extends ApiException {
-    
+
     @Getter
     public enum CatErrorCode {
         CAT_NOT_FOUND("CAT_001", HttpStatus.NOT_FOUND),

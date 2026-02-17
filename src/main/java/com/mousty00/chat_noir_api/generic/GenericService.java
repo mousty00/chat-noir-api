@@ -115,6 +115,7 @@ public abstract class GenericService<ENTITY, DTO, REPO extends JpaRepository<ENT
                 .orElseThrow(() -> ResourceNotFoundException.of(resourceType, id));
     }
 
-    private record Result<DTO>(DTO data, boolean isPresent, HttpStatus status, String message) { }
+    private record Result<DTO>(DTO data, boolean isPresent, HttpStatus status, String message) {
+    }
 
 }

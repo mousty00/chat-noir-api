@@ -18,6 +18,11 @@ public abstract class ApiException extends RuntimeException {
         this.status = status;
     }
 
-    public String getErrorCode() { return errorCode; }
-    public HttpStatus getStatus() { return status; }
+    public String getErrorCode() {
+        return errorCode;
+    }
+
+    public HttpStatus getStatus() {
+        return status;
+    }
 }

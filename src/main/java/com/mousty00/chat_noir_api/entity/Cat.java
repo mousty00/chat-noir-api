@@ -3,9 +3,7 @@ package com.mousty00.chat_noir_api.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.proxy.HibernateProxy;
 
-import java.util.Objects;
 import java.util.UUID;
 
 @Getter
@@ -14,7 +12,7 @@ import java.util.UUID;
 @Builder
 @Entity
 @Table(name = "cat")
-@RequiredArgsConstructor
+@NoArgsConstructor
 @AllArgsConstructor
 public class Cat {
     @Id
@@ -37,9 +35,7 @@ public class Cat {
     @Column(name = "source_name", length = 50)
     private String sourceName;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", referencedColumnName = "cat_id", insertable = false, updatable = false)
+    @OneToOne(mappedBy = "cat")
     @ToString.Exclude
     private CatMedia media;
-
 }

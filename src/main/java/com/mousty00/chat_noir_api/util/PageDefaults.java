@@ -11,16 +11,16 @@ public enum PageDefaults {
 
     public static PageRequest of(Integer page, Integer size) {
         return PageRequest.of(
-            validatePage(page),
-            validateSize(size)
+                validatePage(page),
+                validateSize(size)
         );
     }
 
     public static PageRequest of(Integer page, Integer size, org.springframework.data.domain.Sort sort) {
         return PageRequest.of(
-            validatePage(page),
-            validateSize(size),
-            sort
+                validatePage(page),
+                validateSize(size),
+                sort
         );
     }
 

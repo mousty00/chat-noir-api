@@ -1,7 +1,10 @@
 package com.mousty00.chat_noir_api.dto.cat;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
 

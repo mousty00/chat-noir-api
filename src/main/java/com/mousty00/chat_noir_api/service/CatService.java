@@ -1,5 +1,7 @@
 package com.mousty00.chat_noir_api.service;
 
+import com.mousty00.chat_noir_api.dto.api.ApiResponse;
+import com.mousty00.chat_noir_api.dto.api.PaginatedResponse;
 import com.mousty00.chat_noir_api.dto.cat.CatDTO;
 import com.mousty00.chat_noir_api.dto.cat.CatFilterDTO;
 import com.mousty00.chat_noir_api.dto.cat.CatRequestDTO;
@@ -9,10 +11,8 @@ import com.mousty00.chat_noir_api.exception.CatException;
 import com.mousty00.chat_noir_api.exception.ResourceNotFoundException.ResourceType;
 import com.mousty00.chat_noir_api.generic.GenericService;
 import com.mousty00.chat_noir_api.mapper.CatMapper;
-import com.mousty00.chat_noir_api.dto.api.PaginatedResponse;
 import com.mousty00.chat_noir_api.repository.CatCategoryRepository;
 import com.mousty00.chat_noir_api.repository.CatRepository;
-import com.mousty00.chat_noir_api.dto.api.ApiResponse;
 import com.mousty00.chat_noir_api.specification.CatSpecifications;
 import com.mousty00.chat_noir_api.util.PageDefaults;
 import jakarta.transaction.Transactional;

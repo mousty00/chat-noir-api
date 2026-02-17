@@ -8,9 +8,9 @@ import java.util.Objects;
 
 @Component("roleChecker")
 public class RoleChecker {
-    public boolean hasAllowedRole( Authentication authentication) {
+    public boolean hasAllowedRole(Authentication authentication) {
         return RoleDefaults.ALLOWED_ROLES.allowedRoles.stream()
-            .anyMatch(role -> authentication.getAuthorities().stream()
-                .anyMatch(a -> Objects.requireNonNull(a.getAuthority()).equals("ROLE_" + role)));
+                .anyMatch(role -> authentication.getAuthorities().stream()
+                        .anyMatch(a -> Objects.requireNonNull(a.getAuthority()).equals("ROLE_" + role)));
     }
 }

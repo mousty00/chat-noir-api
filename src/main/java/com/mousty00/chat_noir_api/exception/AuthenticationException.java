@@ -3,7 +3,7 @@ package com.mousty00.chat_noir_api.exception;
 import org.springframework.http.HttpStatus;
 
 public class AuthenticationException extends ApiException {
-    
+
     public AuthenticationException(String message, String errorCode) {
         super(message, errorCode, HttpStatus.UNAUTHORIZED);
     }

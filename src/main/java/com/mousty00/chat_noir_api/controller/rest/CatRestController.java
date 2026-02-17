@@ -52,8 +52,8 @@ public class CatRestController {
         return service.updateCat(id, request);
     }
 
-    @PostMapping(value = "/cats/{id}/media",  consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<String> uploadMedia(@PathVariable UUID id, @RequestParam  MultipartFile mediaFile) {
-        return mediaService.uploadMedia(id, mediaFile);
+    @PostMapping(value = "/cats/{id}/media", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<String> uploadMedia(@PathVariable UUID id, @RequestParam MultipartFile mediaFile) {
+        return mediaService.uploadMediaWithCleanup(id, mediaFile);
     }
 }

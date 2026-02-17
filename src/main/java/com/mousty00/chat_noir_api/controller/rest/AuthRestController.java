@@ -1,7 +1,7 @@
 package com.mousty00.chat_noir_api.controller.rest;
 
-import com.mousty00.chat_noir_api.dto.auth.LoginRequest;
 import com.mousty00.chat_noir_api.dto.api.ApiResponse;
+import com.mousty00.chat_noir_api.dto.auth.LoginRequest;
 import com.mousty00.chat_noir_api.dto.auth.LoginResponse;
 import com.mousty00.chat_noir_api.dto.auth.RegisterRequest;
 import com.mousty00.chat_noir_api.service.AuthService;
@@ -20,7 +20,7 @@ public class AuthRestController {
 
     @PostMapping("/login")
     public ApiResponse<LoginResponse> login(@RequestParam LoginRequest request) {
-       return service.login(request);
+        return service.login(request);
     }
 
     @PostMapping

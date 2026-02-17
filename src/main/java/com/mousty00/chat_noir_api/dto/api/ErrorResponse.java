@@ -20,7 +20,7 @@ public class ErrorResponse {
     private String message;
     private String path;
     private Map<String, String> details;
-    
+
     public static ErrorResponse of(ApiException ex, String path) {
         return ErrorResponse.builder()
                 .timestamp(Instant.now())

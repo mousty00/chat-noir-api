@@ -7,7 +7,8 @@ import org.springframework.util.StringUtils;
 
 public class UserSpecifications {
 
-    private UserSpecifications(){}
+    private UserSpecifications() {
+    }
 
     public static Specification<User> hasUsername(String username) {
         return hasTextLike(username);

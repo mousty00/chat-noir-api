@@ -23,7 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
         Set<String> roles = Collections.singleton(user.getRole().getName());
         if (user.isAdmin()) {
@@ -31,13 +31,13 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
 
         List<SimpleGrantedAuthority> authorities = roles.stream()
-            .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-            .toList();
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                .toList();
 
         return new org.springframework.security.core.userdetails.User(
-            user.getUsername(),
-            user.getPassword(),
-            authorities
+                user.getUsername(),
+                user.getPassword(),
+                authorities
         );
     }
 }

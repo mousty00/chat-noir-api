@@ -1,7 +1,6 @@
 package com.mousty00.chat_noir_api.service;
 
 import com.mousty00.chat_noir_api.aws.S3Service;
-import com.mousty00.chat_noir_api.entity.CatMedia;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +42,7 @@ public class MediaService {
         }
     }
 
-    public String generateCatImageKey(String username, UUID catId, String sanitizedExtension ) {
+    public String generateCatImageKey(String username, UUID catId, String sanitizedExtension) {
         return String.format("users/%s/cats/%s/media-%d.%s", username, catId, System.currentTimeMillis(), sanitizedExtension);
     }
 

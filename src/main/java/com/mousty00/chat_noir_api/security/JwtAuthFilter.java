@@ -27,31 +27,31 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
-        
+
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-            
+
             try {
                 DecodedJWT decodedJWT = jwtUtil.validateToken(token);
                 String username = decodedJWT.getSubject();
                 List<String> roles = decodedJWT.getClaim("roles").asList(String.class);
-                
+
                 var authorities = roles.stream()
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList());
 
                 var authentication = new UsernamePasswordAuthenticationToken(
-                    username, null, authorities);
-                
+                        username, null, authorities);
+
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                
+
             } catch (Exception e) {
                 SecurityContextHolder.clearContext();
             }
         }
-        
+
         filterChain.doFilter(request, response);
     }
 }

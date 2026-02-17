@@ -15,7 +15,6 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -35,7 +34,8 @@ public class S3Service {
 
     /**
      * Uploads a file to S3 bucket with a specific file name
-     * @param file The multipart file to upload
+     *
+     * @param file     The multipart file to upload
      * @param fileName The desired file name in S3
      * @return The key/filename of the uploaded file (not the full URL)
      */
@@ -63,7 +63,8 @@ public class S3Service {
 
     /**
      * Generates a pre-signed URL for accessing a file
-     * @param fileKey The S3 key/filename
+     *
+     * @param fileKey    The S3 key/filename
      * @param expiration Duration for which the URL should be valid
      * @return Pre-signed URL
      */
@@ -88,6 +89,7 @@ public class S3Service {
 
     /**
      * Generates a pre-signed URL with default 1 hour expiration
+     *
      * @param fileKey The S3 key/filename
      * @return Pre-signed URL valid for 1 hour
      */
@@ -97,6 +99,7 @@ public class S3Service {
 
     /**
      * Downloads a file from S3
+     *
      * @param fileKey The S3 key of the file
      * @return The file as a byte array
      */
@@ -116,6 +119,7 @@ public class S3Service {
 
     /**
      * Deletes a file from S3
+     *
      * @param fileKey The S3 key of the file to delete
      */
     public void deleteFile(String fileKey) {
@@ -133,6 +137,7 @@ public class S3Service {
 
     /**
      * Checks if a file exists in S3
+     *
      * @param fileKey The S3 key of the file to check
      * @return true if the file exists, false otherwise
      */
@@ -155,6 +160,7 @@ public class S3Service {
 
     /**
      * Gets the content type of a file in S3
+     *
      * @param fileKey The S3 key of the file
      * @return The content type
      */

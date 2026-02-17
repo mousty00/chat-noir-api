@@ -7,7 +7,8 @@ import org.springframework.util.StringUtils;
 
 public class CatSpecifications {
 
-    private CatSpecifications() {}
+    private CatSpecifications() {
+    }
 
     public static Specification<Cat> hasCategory(String category) {
         return (root, _, cb) -> {

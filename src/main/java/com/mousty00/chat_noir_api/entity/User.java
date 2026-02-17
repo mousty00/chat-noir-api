@@ -1,11 +1,9 @@
 package com.mousty00.chat_noir_api.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.IdGeneratorType;
 
 import java.time.Instant;
 import java.util.UUID;

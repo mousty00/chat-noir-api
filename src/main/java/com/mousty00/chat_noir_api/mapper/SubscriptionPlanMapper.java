@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface SubscriptionPlanMapper extends GenericMapper<SubscriptionPlan, SubscriptionPlanDTO> {
-    
+
     @Override
     SubscriptionPlanDTO toDTO(SubscriptionPlan subscriptionPlan);
 
