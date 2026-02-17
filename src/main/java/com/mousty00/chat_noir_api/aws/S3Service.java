@@ -15,6 +15,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -170,4 +171,6 @@ public class S3Service {
             throw new RuntimeException("Failed to get file content type from S3", e);
         }
     }
+
+
 }

@@ -38,6 +38,7 @@ public class CatMediaService {
 
     private final Logger log = LoggerFactory.getLogger(CatMediaService.class);
     private final S3Service s3Service;
+    private final MediaService mediaService;
     private final CatMediaRepository catMediaRepository;
     private final CatRepository catRepository;
     private final UserRepository userRepository;
@@ -45,7 +46,7 @@ public class CatMediaService {
     @Transactional
     public ApiResponse<String> uploadMedia(UUID catId, MultipartFile imageFile) {
         try {
-            validateImageFile(imageFile);
+            mediaService.validateImageFile(imageFile);
 
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = Objects.requireNonNull(auth).getName();
@@ -64,11 +65,11 @@ public class CatMediaService {
                     .orElseGet(() -> CatMedia.builder().id(cat.getId()).build());
 
             String extension = FilenameUtils.getExtension(imageFile.getOriginalFilename());
-            String sanitizedExtension = (extension != null && !extension.isEmpty()) ? extension : "jpg";
-            String imageKey = String.format("users/%s/cats/%s/media-%d.%s", username, catId, System.currentTimeMillis(), sanitizedExtension);
+            String sanitizedExtension = mediaService.sanitizeExtension(extension);
+            String imageKey = mediaService.generateCatImageKey(username, catId, sanitizedExtension);
             String fileName = s3Service.uploadFileAsync(imageFile, imageKey).get();
 
-            cleanupOldMedia(catMedia);
+            mediaService.cleanupOldMedia(catMedia.getMediaKey());
             catMedia.setMediaKey(imageKey);
             catMedia.setContentUrl(fileName);
             catMediaRepository.save(catMedia);
@@ -93,28 +94,6 @@ public class CatMediaService {
             log.error("Media upload failed for cat {}: {}", catId, e.getMessage(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Failed to upload media", e);
-        }
-    }
-
-    private void cleanupOldMedia(CatMedia catMedia) {
-        if (catMedia.getMediaKey() != null) {
-            try {
-                s3Service.deleteFile(catMedia.getMediaKey());
-            } catch (Exception e) {
-                log.warn("Failed to delete old media: {}", catMedia.getMediaKey(), e);
-            }
-        }
-    }
-
-    private void validateImageFile(MultipartFile file) {
-        String contentType = file.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
-            throw new IllegalArgumentException("Only image files are allowed");
-        }
-
-        long maxSize = 10 * 1024 * 1024; // 10MB
-        if (file.getSize() > maxSize) {
-            throw new IllegalArgumentException("File size exceeds maximum allowed (10MB)");
         }
     }
 

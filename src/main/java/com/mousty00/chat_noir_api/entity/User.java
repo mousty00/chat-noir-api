@@ -1,6 +1,8 @@
 package com.mousty00.chat_noir_api.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.IdGeneratorType;
@@ -57,8 +59,8 @@ public class User {
     @ColumnDefault(value = "now()")
     private Instant createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "profile_media_id")
-    @ToString.Exclude
-    private UserMedia profileMedia;
+    @Size(max = 150)
+    @Column(name = "image_key")
+    private String imageKey;
+
 }
