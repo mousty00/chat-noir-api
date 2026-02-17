@@ -41,7 +41,6 @@ public class UserService extends GenericService<User, UserDTO, UserRepository, U
 
     public UserService(UserMapper mapper,
                        UserRepository repo,
-                       UserMapper userMapper,
                        MediaService mediaService,
                        S3Service s3Service
     ) {
