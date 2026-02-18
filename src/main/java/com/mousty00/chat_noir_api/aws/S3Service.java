@@ -20,11 +20,10 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class S3Service {
 
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucketName;
-
     private final S3Client s3;
     private final S3Presigner s3Presigner;
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucketName;
 
     public S3Service(S3Client s3, S3Presigner s3Presigner) {
         this.s3 = s3;
@@ -159,6 +158,26 @@ public class S3Service {
     }
 
     /**
+     * Gets the file size
+     *
+     * @param fileKey The S3 key of the file
+     * @return The file size as a Long value
+     */
+    public Long getFileSize(String fileKey) {
+        try {
+            HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(fileKey)
+                    .build();
+
+            HeadObjectResponse response = s3.headObject(headObjectRequest);
+            return response.contentLength();
+        } catch (S3Exception e) {
+            return 0L;
+        }
+    }
+
+    /**
      * Gets the content type of a file in S3
      *
      * @param fileKey The S3 key of the file
@@ -178,5 +197,25 @@ public class S3Service {
         }
     }
 
+    /**
+     * Gets an InputStream for a file from S3
+     * This is useful for streaming large files without loading them into memory
+     *
+     * @param fileKey The S3 key of the file
+     * @return InputStream that can be used to read the file content
+     * @throws RuntimeException if the file cannot be accessed
+     */
+    public InputStream getFileInputStream(String fileKey) {
+        try {
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(fileKey)
+                    .build();
 
+            return s3.getObject(getObjectRequest);
+
+        } catch (S3Exception e) {
+            throw new RuntimeException("Failed to get file input stream from S3: " + e.getMessage(), e);
+        }
+    }
 }

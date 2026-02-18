@@ -7,27 +7,6 @@ import java.util.UUID;
 
 public class CatException extends ApiException {
 
-    @Getter
-    public enum CatErrorCode {
-        CAT_NOT_FOUND("CAT_001", HttpStatus.NOT_FOUND),
-        CATEGORY_NOT_FOUND("CAT_002", HttpStatus.NOT_FOUND),
-        CAT_MEDIA_NOT_FOUND("CAT_003", HttpStatus.NOT_FOUND),
-        CATEGORY_REQUIRED("CAT_004", HttpStatus.BAD_REQUEST),
-        DUPLICATE_CAT("CAT_005", HttpStatus.CONFLICT),
-        INVALID_CAT_DATA("CAT_006", HttpStatus.BAD_REQUEST),
-        CAT_SAVE_ERROR("CAT_007", HttpStatus.INTERNAL_SERVER_ERROR),
-        CAT_DELETE_ERROR("CAT_008", HttpStatus.INTERNAL_SERVER_ERROR);
-
-        private final String code;
-        private final HttpStatus status;
-
-        CatErrorCode(String code, HttpStatus status) {
-            this.code = code;
-            this.status = status;
-        }
-
-    }
-
     public CatException(String message, CatErrorCode errorCode) {
         super(message, errorCode.getCode(), errorCode.getStatus());
     }
@@ -60,4 +39,26 @@ public class CatException extends ApiException {
     public static CatException catSaveError(String message, Throwable cause) {
         return new CatException("Error saving cat: " + message, CatErrorCode.CAT_SAVE_ERROR, cause);
     }
+
+    @Getter
+    public enum CatErrorCode {
+        CAT_NOT_FOUND("CAT_001", HttpStatus.NOT_FOUND),
+        CATEGORY_NOT_FOUND("CAT_002", HttpStatus.NOT_FOUND),
+        CAT_MEDIA_NOT_FOUND("CAT_003", HttpStatus.NOT_FOUND),
+        CATEGORY_REQUIRED("CAT_004", HttpStatus.BAD_REQUEST),
+        DUPLICATE_CAT("CAT_005", HttpStatus.CONFLICT),
+        INVALID_CAT_DATA("CAT_006", HttpStatus.BAD_REQUEST),
+        CAT_SAVE_ERROR("CAT_007", HttpStatus.INTERNAL_SERVER_ERROR),
+        CAT_DELETE_ERROR("CAT_008", HttpStatus.INTERNAL_SERVER_ERROR);
+
+        private final String code;
+        private final HttpStatus status;
+
+        CatErrorCode(String code, HttpStatus status) {
+            this.code = code;
+            this.status = status;
+        }
+
+    }
+
 }

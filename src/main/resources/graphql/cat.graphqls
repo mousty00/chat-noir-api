@@ -1,6 +1,7 @@
 extend type Query {
     catById(id: ID!): ApiResponseCat
     allCats(page: Int, size: Int, category: String, color: String, name: String , source: String): ApiResponsePaginatedCat
+    catMediaDownloadInfo(id: ID!): CatMediaStreamApiResponse!
 }
 
 extend type Mutation {
@@ -45,6 +46,14 @@ type ApiResponseCat implements ApiResponse{
     data: Cat
 }
 
+type ApiResponseString implements ApiResponse {
+    status: Int!
+    error: Boolean!
+    message: String
+    success: Boolean!
+    data: String
+}
+
 type PaginatedResponseCat implements PaginatedResponse{
     currentPage: Int!
     totalPages: Int!
@@ -61,4 +70,21 @@ type ApiResponsePaginatedCat implements ApiResponsePaginated{
     message: String
     success: Boolean!
     data: PaginatedResponseCat
+}
+
+type CatMediaStreamInfo {
+    streamUrl: String!
+    filename: String!
+    contentType: String!
+    contentLength: Float
+    extension: String
+    viewable: Boolean!
+}
+
+type CatMediaStreamApiResponse {
+    status: Int!
+    error: Boolean!
+    message: String
+    success: Boolean!
+    data: CatMediaStreamInfo
 }

@@ -25,7 +25,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.util.UUID;
 
 import static com.mousty00.chat_noir_api.exception.CatException.*;
@@ -111,20 +110,5 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
         }
         dto.setId(id);
         return saveItem(dto);
-    }
-
-    public ApiResponse<String> downloadCatMedia(UUID id) {
-        Cat cat = repo.findById(id).orElseThrow(() -> catNotFound(id));
-
-        if (cat.getMedia() == null || cat.getMedia().getMediaKey() == null) {
-            throw CatException.catMediaNotFound(id);
-        }
-
-        String downloadUrl = s3Service.generatePresignedUrl(
-                cat.getMedia().getMediaKey(),
-                Duration.ofMinutes(15)
-        );
-
-        return ApiResponse.success("Cat media ready to be downloaded!", downloadUrl);
     }
 }

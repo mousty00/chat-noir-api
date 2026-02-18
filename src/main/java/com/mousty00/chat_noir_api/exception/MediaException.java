@@ -5,22 +5,6 @@ import org.springframework.http.HttpStatus;
 
 public class MediaException extends ApiException {
 
-    @Getter
-    public enum MediaErrorCode {
-        MEDIA_NOT_FOUND("MEDIA_001", HttpStatus.NOT_FOUND),
-        INVALID_MEDIA_DATA("MEDIA_002", HttpStatus.BAD_REQUEST),
-        MEDIA_SAVE_ERROR("MEDIA_003", HttpStatus.INTERNAL_SERVER_ERROR),
-        MEDIA_DELETE_ERROR("MEDIA_004", HttpStatus.INTERNAL_SERVER_ERROR);
-
-        private final String code;
-        private final HttpStatus status;
-
-        MediaErrorCode(String code, HttpStatus status) {
-            this.code = code;
-            this.status = status;
-        }
-    }
-
     public MediaException(String message, MediaException.MediaErrorCode errorCode) {
         super(message, errorCode.getCode(), errorCode.getStatus());
     }
@@ -39,5 +23,21 @@ public class MediaException extends ApiException {
 
     public static MediaException mediaDeleteError(Throwable cause) {
         return new MediaException("Error deleting media: " + cause.getMessage(), MediaErrorCode.MEDIA_DELETE_ERROR, cause);
+    }
+
+    @Getter
+    public enum MediaErrorCode {
+        MEDIA_NOT_FOUND("MEDIA_001", HttpStatus.NOT_FOUND),
+        INVALID_MEDIA_DATA("MEDIA_002", HttpStatus.BAD_REQUEST),
+        MEDIA_SAVE_ERROR("MEDIA_003", HttpStatus.INTERNAL_SERVER_ERROR),
+        MEDIA_DELETE_ERROR("MEDIA_004", HttpStatus.INTERNAL_SERVER_ERROR);
+
+        private final String code;
+        private final HttpStatus status;
+
+        MediaErrorCode(String code, HttpStatus status) {
+            this.code = code;
+            this.status = status;
+        }
     }
 }

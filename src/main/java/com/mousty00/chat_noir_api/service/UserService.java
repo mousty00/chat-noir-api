@@ -99,7 +99,7 @@ public class UserService extends GenericService<User, UserDTO, UserRepository, U
 
             String extension = FilenameUtils.getExtension(imageFile.getOriginalFilename());
             String sanitizedExtension = mediaService.sanitizeExtension(extension);
-            String imageKey = mediaService.generateUserImagekey(authUsername, userId, sanitizedExtension);
+            String imageKey = mediaService.generateUserImageKey(authUsername, userId, sanitizedExtension);
             String fileName = s3Service.uploadFileAsync(imageFile, imageKey).get();
 
             mediaService.cleanupOldMedia(imageKey);

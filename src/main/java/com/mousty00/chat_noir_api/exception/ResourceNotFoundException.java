@@ -6,10 +6,6 @@ import java.util.UUID;
 
 public class ResourceNotFoundException extends ApiException {
 
-    public enum ResourceType {
-        CAT, CATEGORY, USER, RESERVATION
-    }
-
     public ResourceNotFoundException(String message, String errorCode) {
         super(message, errorCode, HttpStatus.NOT_FOUND);
     }
@@ -26,5 +22,9 @@ public class ResourceNotFoundException extends ApiException {
                 type.name().toLowerCase(), field, value);
         String code = String.format("%s_001", type.name().substring(0, 3).toUpperCase());
         return new ResourceNotFoundException(message, code);
+    }
+
+    public enum ResourceType {
+        CAT, CATEGORY, USER, RESERVATION
     }
 }

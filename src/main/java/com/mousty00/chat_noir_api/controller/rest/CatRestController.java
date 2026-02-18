@@ -9,11 +9,8 @@ import com.mousty00.chat_noir_api.service.CatMediaService;
 import com.mousty00.chat_noir_api.service.CatService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.Parameter;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -48,18 +45,8 @@ public class CatRestController {
     }
 
     @PutMapping("/cats/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@roleChecker.hasAllowedRole(authentication)")
     public ApiResponse<CatDTO> updateCat(@PathVariable UUID id, @RequestBody @Valid CatDTO request) {
         return service.updateCat(id, request);
-    }
-
-    @PostMapping(value = "/cats/{id}/media", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<String> uploadMedia(@PathVariable UUID id, @RequestParam MultipartFile mediaFile) {
-        return mediaService.uploadMediaWithCleanup(id, mediaFile);
-    }
-
-    @GetMapping("/cats/{id}/media/download")
-    public ApiResponse<String> getCatMediaDownloadUrl(@PathVariable UUID id) {
-        return service.downloadCatMedia(id);
     }
 }

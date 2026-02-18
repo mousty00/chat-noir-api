@@ -7,24 +7,6 @@ import java.util.UUID;
 
 public class UserException extends ApiException {
 
-    @Getter
-    public enum UserErrorCode {
-        USER_NOT_FOUND("USER_001", HttpStatus.NOT_FOUND),
-        USER_MEDIA_NOT_FOUND("USER_002", HttpStatus.NOT_FOUND),
-        DUPLICATE_USER("USER_003", HttpStatus.CONFLICT),
-        INVALID_USER_DATA("USER_004", HttpStatus.BAD_REQUEST),
-        USER_SAVE_ERROR("USER_005", HttpStatus.INTERNAL_SERVER_ERROR),
-        USER_DELETE_ERROR("USER_006", HttpStatus.INTERNAL_SERVER_ERROR);
-
-        private final String code;
-        private final HttpStatus status;
-
-        UserErrorCode(String code, HttpStatus status) {
-            this.code = code;
-            this.status = status;
-        }
-    }
-
     public UserException(String message, UserErrorCode errorCode) {
         super(message, errorCode.getCode(), errorCode.getStatus());
     }
@@ -52,5 +34,23 @@ public class UserException extends ApiException {
 
     public static UserException userSaveError(String message, Throwable cause) {
         return new UserException("Error saving user: " + message, UserException.UserErrorCode.USER_SAVE_ERROR, cause);
+    }
+
+    @Getter
+    public enum UserErrorCode {
+        USER_NOT_FOUND("USER_001", HttpStatus.NOT_FOUND),
+        USER_MEDIA_NOT_FOUND("USER_002", HttpStatus.NOT_FOUND),
+        DUPLICATE_USER("USER_003", HttpStatus.CONFLICT),
+        INVALID_USER_DATA("USER_004", HttpStatus.BAD_REQUEST),
+        USER_SAVE_ERROR("USER_005", HttpStatus.INTERNAL_SERVER_ERROR),
+        USER_DELETE_ERROR("USER_006", HttpStatus.INTERNAL_SERVER_ERROR);
+
+        private final String code;
+        private final HttpStatus status;
+
+        UserErrorCode(String code, HttpStatus status) {
+            this.code = code;
+            this.status = status;
+        }
     }
 }
