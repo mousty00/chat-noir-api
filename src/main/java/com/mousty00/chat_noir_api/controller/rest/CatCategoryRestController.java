@@ -21,4 +21,5 @@ public class CatCategoryRestController {
     public ApiResponse<List<CatCategoryDTO>> getCategories() {
         return service.getCategories();
     }
+
 }

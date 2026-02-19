@@ -1,6 +1,6 @@
 extend type Query {
     catById(id: ID!): ApiResponseCat
-    allCats(page: Int, size: Int, category: String, color: String, name: String , source: String): ApiResponsePaginatedCat
+    cats(page: Int, size: Int, category: String, color: String, name: String , source: String): ApiResponsePaginatedCat
     catMediaDownloadInfo(id: ID!): CatMediaStreamApiResponse!
     categories: ApiResponseCategories
 }

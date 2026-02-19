@@ -22,7 +22,7 @@ public class CatController {
     private final CatService service;
 
     @QueryMapping
-    public ApiResponse<PaginatedResponse<CatDTO>> allCats(
+    public ApiResponse<PaginatedResponse<CatDTO>> cats(
             @Argument Integer page,
             @Argument Integer size,
             @Argument String category,
