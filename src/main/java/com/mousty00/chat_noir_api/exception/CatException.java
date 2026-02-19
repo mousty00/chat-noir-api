@@ -36,6 +36,11 @@ public class CatException extends ApiException {
         return new CatException("Category ID is required", CatErrorCode.CATEGORY_REQUIRED);
     }
 
+    public static CatException categoriesError(Throwable cause) {
+        return new CatException("Categories error: " + cause.getMessage(), CatErrorCode.CATEGORY_LIST_ERROR, cause);
+    }
+
+
     public static CatException catSaveError(String message, Throwable cause) {
         return new CatException("Error saving cat: " + message, CatErrorCode.CAT_SAVE_ERROR, cause);
     }
@@ -49,7 +54,9 @@ public class CatException extends ApiException {
         DUPLICATE_CAT("CAT_005", HttpStatus.CONFLICT),
         INVALID_CAT_DATA("CAT_006", HttpStatus.BAD_REQUEST),
         CAT_SAVE_ERROR("CAT_007", HttpStatus.INTERNAL_SERVER_ERROR),
-        CAT_DELETE_ERROR("CAT_008", HttpStatus.INTERNAL_SERVER_ERROR);
+        CAT_DELETE_ERROR("CAT_008", HttpStatus.INTERNAL_SERVER_ERROR),
+        CATEGORY_LIST_ERROR("CAT__009", HttpStatus.INTERNAL_SERVER_ERROR);
+
 
         private final String code;
         private final HttpStatus status;

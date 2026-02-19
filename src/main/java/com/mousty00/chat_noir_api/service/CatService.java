@@ -1,6 +1,5 @@
 package com.mousty00.chat_noir_api.service;
 
-import com.mousty00.chat_noir_api.aws.S3Service;
 import com.mousty00.chat_noir_api.dto.api.ApiResponse;
 import com.mousty00.chat_noir_api.dto.api.PaginatedResponse;
 import com.mousty00.chat_noir_api.dto.cat.CatDTO;
@@ -34,16 +33,14 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
 
     private static final Logger log = LoggerFactory.getLogger(CatService.class);
     private final CatCategoryRepository catCategoryRepository;
-    private final S3Service s3Service;
 
     public CatService(
             CatRepository repo,
             CatMapper mapper,
-            CatCategoryRepository catCategoryRepository,
-            S3Service s3Service) {
+            CatCategoryRepository catCategoryRepository
+    ) {
         super(repo, mapper);
         this.catCategoryRepository = catCategoryRepository;
-        this.s3Service = s3Service;
     }
 
     public ApiResponse<PaginatedResponse<CatDTO>> getCats(Integer page, Integer size, CatFilterDTO filterDTO) {

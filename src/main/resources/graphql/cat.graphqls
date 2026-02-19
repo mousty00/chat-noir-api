@@ -2,6 +2,7 @@ extend type Query {
     catById(id: ID!): ApiResponseCat
     allCats(page: Int, size: Int, category: String, color: String, name: String , source: String): ApiResponsePaginatedCat
     catMediaDownloadInfo(id: ID!): CatMediaStreamApiResponse!
+    categories: ApiResponseCategories
 }
 
 extend type Mutation {
@@ -46,12 +47,12 @@ type ApiResponseCat implements ApiResponse{
     data: Cat
 }
 
-type ApiResponseString implements ApiResponse {
+type ApiResponseCategories implements ApiResponse {
     status: Int!
     error: Boolean!
     message: String
     success: Boolean!
-    data: String
+    data: [Category]
 }
 
 type PaginatedResponseCat implements PaginatedResponse{
