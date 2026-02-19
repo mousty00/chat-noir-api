@@ -65,7 +65,7 @@ public class CatMediaService {
             String imageKey = uploadToS3(imageFile, username, catId);
             String oldMediaKey = saveMediaRecord(cat, imageFile, imageKey);
 
-            cleanupOldMedia(oldMediaKey, imageKey);
+            mediaService.cleanupOldMedia(oldMediaKey);
 
             String url = s3Service.generatePresignedUrl(imageKey);
 
@@ -168,6 +168,7 @@ public class CatMediaService {
                         .build());
 
         String oldMediaKey = catMedia.getMediaKey();
+        mediaService.cleanupOldMedia(oldMediaKey);
 
         catMedia.setMediaFormat(imageFile.getContentType());
         catMedia.setMediaKey(imageKey);
@@ -178,12 +179,6 @@ public class CatMediaService {
         catRepository.save(cat);
 
         return oldMediaKey;
-    }
-
-    private void cleanupOldMedia(String oldMediaKey, String newMediaKey) {
-        if (oldMediaKey != null && !oldMediaKey.equals(newMediaKey)) {
-            mediaService.cleanupOldMedia(oldMediaKey);
-        }
     }
 
     private ApiResponse<String> handleUploadException(UUID catId, Exception e) {

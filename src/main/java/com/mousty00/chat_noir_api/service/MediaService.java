@@ -1,6 +1,7 @@
 package com.mousty00.chat_noir_api.service;
 
 import com.mousty00.chat_noir_api.aws.S3Service;
+import com.mousty00.chat_noir_api.exception.MediaException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class MediaService {
                 log.debug("Successfully deleted old media: {}", imageKey);
             } catch (Exception e) {
                 log.warn("Failed to delete old media: {}", imageKey, e);
+                throw MediaException.mediaDeleteError(e);
             }
         }
     }
