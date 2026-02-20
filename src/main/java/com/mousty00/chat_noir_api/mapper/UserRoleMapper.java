@@ -2,7 +2,7 @@ package com.mousty00.chat_noir_api.mapper;
 
 import com.mousty00.chat_noir_api.dto.user.role.UserRoleDTO;
 import com.mousty00.chat_noir_api.entity.UserRole;
-import com.mousty00.chat_noir_api.generic.GenericMapper;
+import com.mousty00.chat_noir_api.util.generic.GenericMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

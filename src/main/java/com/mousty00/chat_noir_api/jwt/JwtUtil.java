@@ -1,4 +1,4 @@
-package com.mousty00.chat_noir_api.security;
+package com.mousty00.chat_noir_api.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;

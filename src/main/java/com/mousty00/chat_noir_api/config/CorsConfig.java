@@ -1,4 +1,4 @@
-package com.mousty00.chat_noir_api.security;
+package com.mousty00.chat_noir_api.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

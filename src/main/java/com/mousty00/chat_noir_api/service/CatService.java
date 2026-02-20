@@ -9,7 +9,7 @@ import com.mousty00.chat_noir_api.entity.Cat;
 import com.mousty00.chat_noir_api.entity.CatCategory;
 import com.mousty00.chat_noir_api.exception.CatException;
 import com.mousty00.chat_noir_api.exception.ResourceNotFoundException.ResourceType;
-import com.mousty00.chat_noir_api.generic.GenericService;
+import com.mousty00.chat_noir_api.util.generic.GenericService;
 import com.mousty00.chat_noir_api.mapper.CatMapper;
 import com.mousty00.chat_noir_api.repository.CatCategoryRepository;
 import com.mousty00.chat_noir_api.repository.CatRepository;

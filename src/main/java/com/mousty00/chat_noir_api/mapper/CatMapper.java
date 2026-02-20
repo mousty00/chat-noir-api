@@ -1,12 +1,12 @@
 package com.mousty00.chat_noir_api.mapper;
 
-import com.mousty00.chat_noir_api.aws.S3Service;
+import com.mousty00.chat_noir_api.service.S3Service;
 import com.mousty00.chat_noir_api.dto.cat.CatDTO;
 import com.mousty00.chat_noir_api.dto.cat.CatRequestDTO;
 import com.mousty00.chat_noir_api.entity.Cat;
 import com.mousty00.chat_noir_api.entity.CatCategory;
 import com.mousty00.chat_noir_api.entity.CatMedia;
-import com.mousty00.chat_noir_api.generic.GenericMapper;
+import com.mousty00.chat_noir_api.util.generic.GenericMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;

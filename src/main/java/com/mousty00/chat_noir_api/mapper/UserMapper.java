@@ -1,9 +1,9 @@
 package com.mousty00.chat_noir_api.mapper;
 
-import com.mousty00.chat_noir_api.aws.S3Service;
+import com.mousty00.chat_noir_api.service.S3Service;
 import com.mousty00.chat_noir_api.dto.user.UserDTO;
 import com.mousty00.chat_noir_api.entity.User;
-import com.mousty00.chat_noir_api.generic.GenericMapper;
+import com.mousty00.chat_noir_api.util.generic.GenericMapper;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

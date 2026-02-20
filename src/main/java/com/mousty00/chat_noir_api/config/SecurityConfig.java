@@ -1,5 +1,6 @@
-package com.mousty00.chat_noir_api.security;
+package com.mousty00.chat_noir_api.config;
 
+import com.mousty00.chat_noir_api.jwt.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

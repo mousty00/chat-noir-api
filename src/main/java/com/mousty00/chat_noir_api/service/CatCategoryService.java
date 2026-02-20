@@ -4,7 +4,7 @@ import com.mousty00.chat_noir_api.dto.api.ApiResponse;
 import com.mousty00.chat_noir_api.dto.cat.CatCategoryDTO;
 import com.mousty00.chat_noir_api.entity.CatCategory;
 import com.mousty00.chat_noir_api.exception.CatException;
-import com.mousty00.chat_noir_api.generic.GenericService;
+import com.mousty00.chat_noir_api.util.generic.GenericService;
 import com.mousty00.chat_noir_api.mapper.CatCategoryMapper;
 import com.mousty00.chat_noir_api.repository.CatCategoryRepository;
 import org.springframework.stereotype.Service;

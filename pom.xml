@@ -222,6 +222,7 @@
 			<artifactId>assertj-core</artifactId>
 			<scope>test</scope>
 		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -278,7 +279,7 @@
 						</goals>
 						<configuration>
 							<schemaPaths>
-								<param>src/main/resources/graphql-client</param>
+								<schemaPath>${project.basedir}/src/main/resources/graphql</schemaPath>
 							</schemaPaths>
 							<packageName>com.mousty00.chat_noir_api.codegen</packageName>
 							<addGeneratedAnnotation>true</addGeneratedAnnotation>

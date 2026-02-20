@@ -1,4 +1,4 @@
-package com.mousty00.chat_noir_api.aws;
+package com.mousty00.chat_noir_api.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;

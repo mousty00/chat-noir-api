@@ -1,6 +1,5 @@
 package com.mousty00.chat_noir_api.service;
 
-import com.mousty00.chat_noir_api.aws.S3Service;
 import com.mousty00.chat_noir_api.dto.api.ApiResponse;
 import com.mousty00.chat_noir_api.dto.cat.CatMediaStreamInfo;
 import com.mousty00.chat_noir_api.dto.media.MediaMetadata;

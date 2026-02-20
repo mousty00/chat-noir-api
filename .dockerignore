@@ -1,15 +1,39 @@
-target/
-!target/chat-noir-api-*.jar
-.mvn/
-database.env
-*.iml
-.idea/
-.git/
+# Git
+.git
 .gitignore
-README.md
-.env
+
+# Build artifacts
+target/
+*.jar
+*.war
 *.log
+
+# IDE files
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+
+# Docker
+Dockerfile
+.dockerignore
+compose.yaml
+docker-compose*
+
+# Environment files
+*.env
+!.env.example
+
+# Logs
+logs/
+
+# Temp files
+*.tmp
+*.temp
+*~
+
+# OS files
 .DS_Store
-*.swp
-*.swo
-node_modules/
+Thumbs.db

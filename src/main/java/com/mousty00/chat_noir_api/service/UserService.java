@@ -1,13 +1,12 @@
 package com.mousty00.chat_noir_api.service;
 
-import com.mousty00.chat_noir_api.aws.S3Service;
 import com.mousty00.chat_noir_api.dto.api.ApiResponse;
 import com.mousty00.chat_noir_api.dto.api.PaginatedResponse;
 import com.mousty00.chat_noir_api.dto.user.UserDTO;
 import com.mousty00.chat_noir_api.entity.User;
 import com.mousty00.chat_noir_api.exception.AuthenticationException;
 import com.mousty00.chat_noir_api.exception.UserException;
-import com.mousty00.chat_noir_api.generic.GenericService;
+import com.mousty00.chat_noir_api.util.generic.GenericService;
 import com.mousty00.chat_noir_api.mapper.UserMapper;
 import com.mousty00.chat_noir_api.repository.UserRepository;
 import com.mousty00.chat_noir_api.specification.UserSpecifications;

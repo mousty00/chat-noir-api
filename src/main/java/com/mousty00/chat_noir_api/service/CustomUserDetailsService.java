@@ -1,4 +1,4 @@
-package com.mousty00.chat_noir_api.security;
+package com.mousty00.chat_noir_api.service;
 
 import com.mousty00.chat_noir_api.entity.User;
 import com.mousty00.chat_noir_api.repository.UserRepository;

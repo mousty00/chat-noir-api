@@ -1,21 +1,51 @@
-  services:
+services:
+  database:
+    restart: always
+    image: postgres:latest
+    container_name: chat_noir_db
+    ports:
+      - '5433:5432'
+    env_file:
+      - database.env
+    volumes:
+      - ./sql/chat_noir.sql:/docker-entrypoint-initdb.d/chat_noir.sql
+      - chat_noir_vol:/var/lib/postgresql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d chat_noir" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - chat_noir_network
 
-    database:
-      restart: always
-      image: postgres:latest
-      container_name: chat_noir_db
-      ports:
-        - '5433:5432'
-      env_file:
-        - database.env
-      volumes:
-        - ./sql/chat_noir.sql:/docker-entrypoint-initdb.d/chat_noir.sql
-        - chat_noir_vol:/var/lib/postgresql
-      healthcheck:
-        test: [ "CMD-SHELL", "pg_isready -U postgres -d chat_noir" ]
-        interval: 10s
-        timeout: 5s
-        retries: 5
+  chat_noir_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chat_noir_api
+    ports:
+      - '8080:8080'
+    env_file:
+      - app.env
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/api/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - chat_noir_network
+    restart: unless-stopped
+    volumes:
+      - chat_noir_media:/app/media
 
-  volumes:
-    chat_noir_vol:
+volumes:
+  chat_noir_vol:
+  chat_noir_media:
+
+networks:
+  chat_noir_network:
+    driver: bridge

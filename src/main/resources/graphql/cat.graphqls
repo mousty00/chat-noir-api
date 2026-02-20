@@ -47,6 +47,14 @@ type ApiResponseCat implements ApiResponse{
     data: Cat
 }
 
+type ApiResponseString implements ApiResponse {
+    status: Int!
+    error: Boolean!
+    message: String
+    success: Boolean!
+    data: String
+}
+
 type ApiResponseCategories implements ApiResponse {
     status: Int!
     error: Boolean!

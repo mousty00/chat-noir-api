@@ -11,7 +11,7 @@ import com.mousty00.chat_noir_api.exception.ResourceNotFoundException;
 import com.mousty00.chat_noir_api.exception.UserException;
 import com.mousty00.chat_noir_api.repository.UserRepository;
 import com.mousty00.chat_noir_api.repository.UserRoleRepository;
-import com.mousty00.chat_noir_api.security.JwtUtil;
+import com.mousty00.chat_noir_api.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;

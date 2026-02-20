@@ -1,4 +1,4 @@
-package com.mousty00.chat_noir_api.generic;
+package com.mousty00.chat_noir_api.util.generic;
 
 import com.mousty00.chat_noir_api.dto.api.ApiResponse;
 import com.mousty00.chat_noir_api.dto.api.PaginatedResponse;
