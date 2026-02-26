@@ -8,9 +8,6 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
@@ -24,6 +21,16 @@ public class CatMediaController {
     @QueryMapping
     public ApiResponse<CatMediaStreamInfo> catMediaDownloadInfo(@Argument UUID id) {
         return service.getCatMediaStreamInfo(id);
+    }
+
+    @MutationMapping
+    public ApiResponse<String> deleteCatMedia(@Argument UUID id) {
+        return service.deleteCatMedia(id);
+    }
+
+    @MutationMapping
+    public ApiResponse<String> uploadCatMedia(@Argument UUID id, @Argument MultipartFile file) {
+        return service.uploadMediaWithCleanup(id, file);
     }
 
 }

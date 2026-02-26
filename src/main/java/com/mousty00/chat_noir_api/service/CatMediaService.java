@@ -1,6 +1,7 @@
 package com.mousty00.chat_noir_api.service;
 
 import com.mousty00.chat_noir_api.dto.api.ApiResponse;
+import com.mousty00.chat_noir_api.dto.cat.CatDTO;
 import com.mousty00.chat_noir_api.dto.cat.CatMediaStreamInfo;
 import com.mousty00.chat_noir_api.dto.media.MediaMetadata;
 import com.mousty00.chat_noir_api.entity.Cat;
@@ -126,6 +127,19 @@ public class CatMediaService {
         } catch (Exception e) {
             log.error("Failed to stream media for cat {}: {}", catId, e.getMessage());
             throw e;
+        }
+    }
+
+    public ApiResponse<String> deleteCatMedia(UUID id) {
+        try {
+            Cat cat = getCatOrThrow(id);
+            s3Service.deleteFile(cat.getMedia().getMediaKey());
+            catMediaRepository.delete(cat.getMedia());
+
+            return ApiResponse.success("cat media deleted successfully!", null);
+
+        } catch (Exception e) {
+            throw CatException.catMediaDeleteError(e);
         }
     }
 
