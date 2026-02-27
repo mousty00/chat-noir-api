@@ -69,6 +69,12 @@ public class CatMediaService {
 
             String url = s3Service.generatePresignedUrl(imageKey);
 
+            cat.getMedia().setMediaKey(imageKey);
+            cat.getMedia().setContentUrl(url);
+
+            catMediaRepository.save(cat.getMedia());
+            catRepository.saveAndFlush(cat);
+
             return ApiResponse.<String>builder()
                     .status(HttpStatus.OK.value())
                     .message("Media uploaded successfully")
@@ -160,6 +166,7 @@ public class CatMediaService {
             throw AuthenticationException.accessDenied();
         }
     }
+
 
     private String uploadToS3(MultipartFile imageFile, String username, UUID catId) {
         try {

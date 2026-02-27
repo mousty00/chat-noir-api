@@ -29,7 +29,7 @@ public class CatMedia {
     @Column(name = "media_format", nullable = false, length = 20)
     private String mediaFormat;
 
-    @Column(name = "media_key", nullable = false, length = 50)
+    @Column(name = "media_key", nullable = false)
     private String mediaKey;
 
     @Column(name = "content_url", nullable = false, length = 512)

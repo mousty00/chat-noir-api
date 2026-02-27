@@ -29,7 +29,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final UserRoleRepository userRoleRepository;
     private final JwtUtil jwtUtil;
 
-    @Value("${frontend.domain}")
+    @Value("${frontend.domain:localhost:3000}")
     private String FE_DOMAIN;
 
     @Override
@@ -38,7 +38,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         assert oAuth2User != null;
-
 
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");

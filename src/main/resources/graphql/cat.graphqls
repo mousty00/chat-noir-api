@@ -10,7 +10,6 @@ extend type Mutation {
     createCat(cat: CatRequest): ApiResponseCat
     updateCat(id: ID ,cat: CatRequest): ApiResponseCat
     deleteCatMedia(id: ID!): ApiResponseString
-
 }
 
 input CatRequest {
