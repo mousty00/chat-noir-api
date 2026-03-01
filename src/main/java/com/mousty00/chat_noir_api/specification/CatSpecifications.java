@@ -42,7 +42,7 @@ public class CatSpecifications {
             if (!StringUtils.hasText(source)) {
                 return null;
             }
-            return cb.equal(root.get("sourceName"), source);
+            return cb.like(cb.lower(root.get("sourceName")), "%" + source.toLowerCase() + "%");
         };
     }
 

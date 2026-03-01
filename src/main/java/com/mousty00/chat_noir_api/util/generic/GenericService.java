@@ -30,7 +30,6 @@ public abstract class GenericService<ENTITY, DTO, REPO extends JpaRepository<ENT
     public ApiResponse<PaginatedResponse<DTO>> getPagedItems(Pageable pageable) {
 
         Pageable request = (pageable != null) ? pageable : PageRequest.of(0, PageDefaults.DEFAULT_SIZE);
-
         Page<DTO> page = repo.findAll(request).map(mapper::toDTO);
         PaginatedResponse<DTO> data = buildPaginatedResponse(page);
 
@@ -41,7 +40,6 @@ public abstract class GenericService<ENTITY, DTO, REPO extends JpaRepository<ENT
                 .error(false)
                 .data(data)
                 .build();
-
     }
 
     public ApiResponse<DTO> getItemById(UUID id, ResourceType resourceType) {
@@ -115,7 +113,6 @@ public abstract class GenericService<ENTITY, DTO, REPO extends JpaRepository<ENT
                 .orElseThrow(() -> ResourceNotFoundException.of(resourceType, id));
     }
 
-    private record Result<DTO>(DTO data, boolean isPresent, HttpStatus status, String message) {
-    }
+    private record Result<DTO>(DTO data, boolean isPresent, HttpStatus status, String message) { }
 
 }
