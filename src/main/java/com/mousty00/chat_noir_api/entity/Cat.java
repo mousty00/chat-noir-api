@@ -35,7 +35,7 @@ public class Cat {
     @Column(name = "source_name", length = 50)
     private String sourceName;
 
-    @OneToOne(mappedBy = "cat")
+    @OneToOne(mappedBy = "cat", cascade =  CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private CatMedia media;
 }
