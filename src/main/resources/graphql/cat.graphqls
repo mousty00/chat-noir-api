@@ -15,10 +15,11 @@ extend type Mutation {
 input CatRequest {
     name: String!
     color: String
-    categoryId: String
+    category: CategoryRequest,
     image: String
     sourceName: String
 }
+
 
 type Cat {
     id: ID!
@@ -30,6 +31,7 @@ type Cat {
 }
 
 input CategoryRequest {
+    id: ID!
     name: String!
     mediaTypeHint: String!
 }

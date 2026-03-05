@@ -20,7 +20,6 @@ import java.util.UUID;
 public class CatRestController {
 
     private final CatService service;
-    private final CatMediaService mediaService;
 
     @GetMapping("/cats")
     public ApiResponse<PaginatedResponse<CatDTO>> getCats(Integer page, Integer size, CatFilterDTO filter) {
@@ -28,14 +27,14 @@ public class CatRestController {
     }
 
     @GetMapping("/cats/{id}")
-    public ApiResponse<CatDTO> getCat(@PathVariable UUID id) {
-        return service.getCatById(id);
+    public ApiResponse<CatDTO> getCat(@PathVariable("id") UUID catId) {
+        return service.getCatById(catId);
     }
 
     @DeleteMapping("/cats/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<?> deleteCat(@PathVariable UUID id) {
-        return service.deleteCat(id);
+    public ApiResponse<?> deleteCat(@PathVariable("id") UUID catId) {
+        return service.deleteCat(catId);
     }
 
     @PostMapping("/cats")
@@ -46,7 +45,7 @@ public class CatRestController {
 
     @PutMapping("/cats/{id}")
     @PreAuthorize("@roleChecker.hasAllowedRole(authentication)")
-    public ApiResponse<CatDTO> updateCat(@PathVariable UUID id, @RequestBody @Valid CatDTO request) {
-        return service.updateCat(id, request);
+    public ApiResponse<CatDTO> updateCat(@PathVariable("id") UUID catId, @RequestBody @Valid CatDTO request) {
+        return service.updateCat(catId, request);
     }
 }

@@ -51,11 +51,11 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
         return buildSuccessPageResponse(pageResult, "Cats retrieved successfully");
     }
 
-    public ApiResponse<CatDTO> getCatById(UUID id) {
+    public ApiResponse<CatDTO> getCatById(UUID catId) {
         try {
-            return getItemById(id, ResourceType.CAT);
+            return getItemById(catId, ResourceType.CAT);
         } catch (Exception e) {
-            throw catNotFound(id);
+            throw catNotFound(catId);
         }
     }
 
@@ -102,10 +102,35 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
 
     @Transactional
     public ApiResponse<CatDTO> updateCat(UUID id, CatDTO dto) {
-        if (!repo.existsById(id)) {
-            throw catNotFound(id);
+        try {
+
+            repo.findById(id).orElseThrow(() -> catNotFound(id));
+
+            if (dto.getCategory() == null) {
+                throw categoryRequired();
+            }
+
+            CatCategory category = catCategoryRepository.findById(dto.getCategory().getId())
+                    .orElseThrow(() -> categoryNotFound(dto.getCategory().getId()));
+
+            Cat cat = mapper.toEntity(dto);
+            cat.setCategory(category);
+            Cat savedCat = repo.save(cat);
+
+            log.info("Cat updated successfully with ID: {}, category: {}",
+                    savedCat.getId(), savedCat.getCategory().getName());
+
+            return ApiResponse.success(
+                    HttpStatus.OK.value(),
+                    "Cat updated successfully",
+                    mapper.toDTO(savedCat)
+            );
+
+        } catch (CatException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Error saving cat: {}", e.getMessage(), e);
+            throw catSaveError(e.getMessage(), e);
         }
-        dto.setId(id);
-        return saveItem(dto);
     }
 }
