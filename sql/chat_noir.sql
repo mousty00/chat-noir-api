@@ -81,6 +81,7 @@ CREATE TABLE "user"
     subscription_start_date TIMESTAMP,
     subscription_end_date   TIMESTAMP,
     stripe_subscription_id VARCHAR(255),
+    google_id VARCHAR(255),
 
     profile_media_id UUID,
 

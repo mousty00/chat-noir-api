@@ -25,4 +25,10 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.role WHERE u.username = :username")
     Optional<User> findByUsernameWithRole(@Param("username") String username);
 
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.role WHERE u.googleId = :googleId")
+    Optional<User> findByGoogleIdWithRole(@Param("googleId") String googleId);
+
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.role WHERE u.email = :email")
+    Optional<User> findByEmailWithRole(@Param("email") String email);
+
 }

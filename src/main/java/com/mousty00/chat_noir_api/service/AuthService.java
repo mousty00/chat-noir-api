@@ -131,6 +131,7 @@ public class AuthService {
 
         String token = jwtUtil.generateToken(
                 user.getUsername(),
+                user.getEmail(),
                 List.copyOf(roles),
                 user.isAdmin()
         );

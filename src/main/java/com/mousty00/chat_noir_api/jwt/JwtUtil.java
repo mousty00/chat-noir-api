@@ -19,7 +19,7 @@ public class JwtUtil {
     @Value("${jwt.expiration:86400000}")
     private Long expiration;
 
-    public String generateToken(String username, List<String> roles, boolean isAdmin) {
+    public String generateToken(String username, String email, List<String> roles, boolean isAdmin) {
         List<String> springRoles = roles.stream()
                 .map(role -> {
                     if (role.startsWith("ROLE_")) {
@@ -36,6 +36,8 @@ public class JwtUtil {
 
         return JWT.create()
                 .withSubject(username)
+                .withClaim("username", username)
+                .withClaim("email", email)
                 .withClaim("roles", springRoles)
                 .withClaim("isAdmin", isAdmin)
                 .withIssuedAt(new Date())

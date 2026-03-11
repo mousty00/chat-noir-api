@@ -1,11 +1,7 @@
 package com.mousty00.chat_noir_api.config;
 
-import com.mousty00.chat_noir_api.entity.User;
-import com.mousty00.chat_noir_api.entity.UserRole;
-import com.mousty00.chat_noir_api.exception.ResourceNotFoundException;
-import com.mousty00.chat_noir_api.jwt.JwtUtil;
-import com.mousty00.chat_noir_api.repository.UserRepository;
-import com.mousty00.chat_noir_api.repository.UserRoleRepository;
+import com.mousty00.chat_noir_api.dto.auth.LoginResponse;
+import com.mousty00.chat_noir_api.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,17 +14,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.util.List;
-import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private final UserRepository userRepository;
-    private final UserRoleRepository userRoleRepository;
-    private final JwtUtil jwtUtil;
+    private final AuthService authService;
 
     @Value("${frontend.domain:localhost:3000}")
     private String FE_DOMAIN;
@@ -41,36 +32,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         assert oAuth2User != null;
 
-        String googleId = oAuth2User.getAttribute("sub");
-        String email    = oAuth2User.getAttribute("email");
-        String name     = oAuth2User.getAttribute("name");
-
-        User user = userRepository.findByGoogleId(googleId)
-                .orElseGet(() -> userRepository.findByEmail(email).orElseGet(() -> {
-                    UserRole defaultRole = userRoleRepository.findByName("USER")
-                            .orElseThrow(() -> new ResourceNotFoundException("Default role not found", "ROLE_001"));
-
-                    return userRepository.save(User.builder()
-                            .username(Objects.requireNonNull(name).replaceAll("\\s+", "_").toLowerCase())
-                            .email(email)
-                            .googleId(googleId)
-                            .password("")
-                            .isAdmin(false)
-                            .createdAt(Instant.now())
-                            .role(defaultRole)
-                            .build());
-                }));
-
-        if (user.getGoogleId() == null) {
-            user.setGoogleId(googleId);
-            userRepository.save(user);
-        }
-
-        String token = jwtUtil.generateToken(
-                user.getUsername(),
-                List.of(user.getRole().getName()),
-                user.isAdmin()
-        );
+        LoginResponse loginResponse = authService.loginOrRegisterOAuth2User(oAuth2User);
+        String token = loginResponse.getToken();
 
         String redirectUrl = UriComponentsBuilder.newInstance()
                 .scheme("http")
