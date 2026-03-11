@@ -61,6 +61,7 @@ public class User {
     @Column(name = "image_key")
     private String imageKey;
 
+    @Column(name = "google_id")
     private String googleId;
 
 }

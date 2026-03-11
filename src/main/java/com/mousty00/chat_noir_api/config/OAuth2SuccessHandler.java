@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -33,28 +34,37 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private String FE_DOMAIN;
 
     @Override
-    public void onAuthenticationSuccess(@NonNull HttpServletRequest request, HttpServletResponse response,
+    public void onAuthenticationSuccess(@NonNull HttpServletRequest request,
+                                        @NonNull HttpServletResponse response,
                                         Authentication authentication) throws IOException {
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         assert oAuth2User != null;
 
-        String email = oAuth2User.getAttribute("email");
-        String name = oAuth2User.getAttribute("name");
+        String googleId = oAuth2User.getAttribute("sub");
+        String email    = oAuth2User.getAttribute("email");
+        String name     = oAuth2User.getAttribute("name");
 
-        User user = userRepository.findByEmail(email).orElseGet(() -> {
-            UserRole defaultRole = userRoleRepository.findByName("USER")
-                    .orElseThrow(() -> new ResourceNotFoundException("Default role not found", "ROLE_001"));
+        User user = userRepository.findByGoogleId(googleId)
+                .orElseGet(() -> userRepository.findByEmail(email).orElseGet(() -> {
+                    UserRole defaultRole = userRoleRepository.findByName("USER")
+                            .orElseThrow(() -> new ResourceNotFoundException("Default role not found", "ROLE_001"));
 
-            return userRepository.save(User.builder()
-                    .username(Objects.requireNonNull(name).replaceAll("\\s+", "_").toLowerCase())
-                    .email(email)
-                    .password("") // no password for oAuth users
-                    .isAdmin(false)
-                    .createdAt(Instant.now())
-                    .role(defaultRole)
-                    .build());
-        });
+                    return userRepository.save(User.builder()
+                            .username(Objects.requireNonNull(name).replaceAll("\\s+", "_").toLowerCase())
+                            .email(email)
+                            .googleId(googleId)
+                            .password("")
+                            .isAdmin(false)
+                            .createdAt(Instant.now())
+                            .role(defaultRole)
+                            .build());
+                }));
+
+        if (user.getGoogleId() == null) {
+            user.setGoogleId(googleId);
+            userRepository.save(user);
+        }
 
         String token = jwtUtil.generateToken(
                 user.getUsername(),
@@ -62,6 +72,15 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 user.isAdmin()
         );
 
-        response.sendRedirect("http://%s/oauth2/callback?token=%s".formatted(FE_DOMAIN, token));
+        String redirectUrl = UriComponentsBuilder.newInstance()
+                .scheme("http")
+                .host(FE_DOMAIN.contains(":") ? FE_DOMAIN.split(":")[0] : FE_DOMAIN)
+                .port(FE_DOMAIN.contains(":") ? FE_DOMAIN.split(":")[1] : null)
+                .path("/oauth2/callback")
+                .queryParam("token", token)
+                .build()
+                .toUriString();
+
+        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 }
