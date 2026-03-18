@@ -1,0 +1,49 @@
+extend type Query {
+    myFavorites(page: Int, size: Int): ApiResponsePaginatedFavorite
+    isFavorite(catMediaId: ID!): ApiResponseBoolean
+}
+
+extend type Mutation {
+    addFavorite(catMediaId: ID!): ApiResponseFavorite
+    removeFavorite(catMediaId: ID!): ApiResponseFavorite
+}
+
+type UserFavorite {
+    id: ID!
+    userId: ID!
+    catMediaId: ID!
+}
+
+type ApiResponseFavorite implements ApiResponse {
+    status: Int!
+    error: Boolean!
+    message: String
+    success: Boolean!
+    data: UserFavorite
+}
+
+type ApiResponseBoolean implements ApiResponse {
+    status: Int!
+    error: Boolean!
+    message: String
+    success: Boolean!
+    data: Boolean
+}
+
+type PaginatedResponseFavorite implements PaginatedResponse {
+    currentPage: Int!
+    totalPages: Int!
+    totalItems: Int!
+    pageSize: Int!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+    result: [UserFavorite!]!
+}
+
+type ApiResponsePaginatedFavorite implements ApiResponsePaginated {
+    status: Int!
+    error: Boolean!
+    message: String
+    success: Boolean!
+    data: PaginatedResponseFavorite
+}
