@@ -79,8 +79,8 @@ public class UserService extends GenericService<User, UserDTO, UserRepository, U
         try {
             return saveItem(user);
         } catch (Exception e) {
-            log.error("error saving user with id: {}", user.getId(), e);
-            throw UserException.userSaveError("error saving user with id %s".formatted(user.getId()), e);
+            log.error("error saving user with id: {}", user.id(), e);
+            throw UserException.userSaveError("error saving user with id %s".formatted(user.id()), e);
         }
     }
 

@@ -35,14 +35,14 @@ public class AuthService {
 
     @Transactional
     public ApiResponse<LoginResponse> login(LoginRequest request) {
-        User user = userRepository.findByUsernameWithRole(request.getUsername())
+        User user = userRepository.findByUsernameWithRole(request.username())
                 .orElseThrow(AuthenticationException::badCredentials);
 
         if (user.getPassword() == null || user.getPassword().isBlank()) {
             throw AuthenticationException.badCredentials();
         }
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             throw AuthenticationException.badCredentials();
         }
 
@@ -51,11 +51,11 @@ public class AuthService {
 
     @Transactional
     public ApiResponse<String> register(RegisterRequest request) {
-        if (userRepository.existsByUsername(request.getUsername())) {
+        if (userRepository.existsByUsername(request.username())) {
             return ApiResponse.error(HttpStatus.CONFLICT.value(), "Username already exists");
         }
 
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(request.email())) {
             return ApiResponse.error(HttpStatus.CONFLICT.value(), "Email already exists");
         }
 
@@ -63,9 +63,9 @@ public class AuthService {
                 .orElseThrow(() -> new ResourceNotFoundException("Default role not found", "ROLE_001"));
 
         User user = User.builder()
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .username(request.username())
+                .email(request.email())
+                .password(passwordEncoder.encode(request.password()))
                 .isAdmin(false)
                 .createdAt(Instant.now())
                 .role(defaultRole)

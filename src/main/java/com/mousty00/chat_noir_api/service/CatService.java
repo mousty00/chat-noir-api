@@ -72,12 +72,12 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
     @Transactional
     public ApiResponse<CatDTO> saveCat(CatRequestDTO request) {
         try {
-            if (request.getCategoryId() == null) {
+            if (request.categoryId() == null) {
                 throw categoryRequired();
             }
 
-            CatCategory category = catCategoryRepository.findById(request.getCategoryId())
-                    .orElseThrow(() -> categoryNotFound(request.getCategoryId()));
+            CatCategory category = catCategoryRepository.findById(request.categoryId())
+                    .orElseThrow(() -> categoryNotFound(request.categoryId()));
 
             Cat cat = mapper.toEntityFromRequest(request);
             cat.setCategory(category);
@@ -106,12 +106,12 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
 
             repo.findById(id).orElseThrow(() -> catNotFound(id));
 
-            if (dto.getCategory() == null) {
+            if (dto.category() == null) {
                 throw categoryRequired();
             }
 
-            CatCategory category = catCategoryRepository.findById(dto.getCategory().getId())
-                    .orElseThrow(() -> categoryNotFound(dto.getCategory().getId()));
+            CatCategory category = catCategoryRepository.findById(dto.category().id())
+                    .orElseThrow(() -> categoryNotFound(dto.category().id()));
 
             Cat cat = mapper.toEntity(dto);
             cat.setCategory(category);

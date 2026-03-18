@@ -33,7 +33,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         assert oAuth2User != null;
 
         LoginResponse loginResponse = authService.loginOrRegisterOAuth2User(oAuth2User);
-        String token = loginResponse.getToken();
+        String token = loginResponse.token();
 
         String redirectUrl = UriComponentsBuilder.newInstance()
                 .scheme("http")

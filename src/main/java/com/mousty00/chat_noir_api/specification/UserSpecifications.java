@@ -16,8 +16,8 @@ public class UserSpecifications {
 
     public static Specification<User> filter(UserDTO user) {
         return Specification
-                .where(hasTextLike(user.getUsername()))
-                .and(hasTextLike(user.getEmail()));
+                .where(hasTextLike(user.username()))
+                .and(hasTextLike(user.email()));
     }
 
     private static Specification<User> hasTextLike(String text) {
