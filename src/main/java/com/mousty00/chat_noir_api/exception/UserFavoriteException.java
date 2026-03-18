@@ -31,6 +31,14 @@ public class UserFavoriteException extends ApiException {
         return new UserFavoriteException("Error deleting favorite: " + cause.getMessage(), FavoriteErrorCode.FAVORITE_DELETE_ERROR, cause);
     }
 
+    public static UserFavoriteException favoriteNotFoundForCat(UUID catId) {
+        return new UserFavoriteException("Favorite not found for cat: " + catId,  FavoriteErrorCode.FAVORITE_NOT_FOUND);
+    }
+
+    public static UserFavoriteException alreadyFavoritedCat(UUID catId) {
+        return new UserFavoriteException("Cat already favorited: " + catId,  FavoriteErrorCode.ALREADY_FAVORITED);
+    }
+
     @Getter
     public enum FavoriteErrorCode {
         FAVORITE_NOT_FOUND("FAV_001", HttpStatus.NOT_FOUND),

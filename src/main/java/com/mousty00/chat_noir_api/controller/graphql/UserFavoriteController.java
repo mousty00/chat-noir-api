@@ -29,17 +29,17 @@ public class UserFavoriteController {
     }
 
     @QueryMapping
-    public ApiResponse<Boolean> isFavorite(@Argument UUID catMediaId) {
-        return service.isFavorite(catMediaId);
+    public ApiResponse<Boolean> isFavorite(@Argument UUID catId) {
+        return service.isFavorite(catId);
     }
 
     @MutationMapping
-    public ApiResponse<UserFavoriteDTO> addFavorite(@Argument UUID catMediaId) {
-        return service.addFavorite(catMediaId);
+    public ApiResponse<UserFavoriteDTO> addFavorite(@Argument UUID catId) {
+        return service.addFavorite(catId);
     }
 
     @MutationMapping
-    public ApiResponse<?> removeFavorite(@Argument UUID catMediaId) {
-        return service.removeFavorite(catMediaId);
+    public ApiResponse<?> removeFavorite(@Argument UUID catId) {
+        return service.removeFavorite(catId);
     }
 }

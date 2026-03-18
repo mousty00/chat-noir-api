@@ -1,6 +1,8 @@
 package com.mousty00.chat_noir_api.dto.user;
 
+import com.mousty00.chat_noir_api.dto.cat.CatDTO;
 import lombok.Builder;
+import lombok.Data;
 
 import java.util.UUID;
 
@@ -8,6 +10,7 @@ import java.util.UUID;
 public record UserFavoriteDTO(
         UUID id,
         UUID userId,
-        UUID catMediaId
+        UUID catMediaId,
+        CatDTO cat
 ) {
 }

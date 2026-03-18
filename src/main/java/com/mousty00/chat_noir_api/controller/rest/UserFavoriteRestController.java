@@ -26,18 +26,18 @@ public class UserFavoriteRestController {
         return service.getUserFavorites(page, size);
     }
 
-    @PostMapping("/{catMediaId}")
-    public ApiResponse<UserFavoriteDTO> addFavorite(@PathVariable UUID catMediaId) {
-        return service.addFavorite(catMediaId);
+    @PostMapping("/{catId}")
+    public ApiResponse<UserFavoriteDTO> addFavorite(@PathVariable UUID catId) {
+        return service.addFavorite(catId);
     }
 
-    @DeleteMapping("/{catMediaId}")
-    public ApiResponse<?> removeFavorite(@PathVariable UUID catMediaId) {
-        return service.removeFavorite(catMediaId);
+    @DeleteMapping("/{catId}")
+    public ApiResponse<?> removeFavorite(@PathVariable UUID catId) {
+        return service.removeFavorite(catId);
     }
 
-    @GetMapping("/{catMediaId}/check")
-    public ApiResponse<Boolean> isFavorite(@PathVariable UUID catMediaId) {
-        return service.isFavorite(catMediaId);
+    @GetMapping("/{catId}/check")
+    public ApiResponse<Boolean> isFavorite(@PathVariable UUID catId) {
+        return service.isFavorite(catId);
     }
 }

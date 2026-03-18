@@ -1,17 +1,18 @@
 extend type Query {
     myFavorites(page: Int, size: Int): ApiResponsePaginatedFavorite
-    isFavorite(catMediaId: ID!): ApiResponseBoolean
+    isFavorite(catId: ID!): ApiResponseBoolean
 }
 
 extend type Mutation {
-    addFavorite(catMediaId: ID!): ApiResponseFavorite
-    removeFavorite(catMediaId: ID!): ApiResponseFavorite
+    addFavorite(catId: ID!): ApiResponseFavorite
+    removeFavorite(catId: ID!): ApiResponseFavorite
 }
 
 type UserFavorite {
     id: ID!
     userId: ID!
     catMediaId: ID!
+    cat: Cat!
 }
 
 type ApiResponseFavorite implements ApiResponse {
