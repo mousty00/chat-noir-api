@@ -3,23 +3,22 @@ package com.mousty00.chat_noir_api.dto.api;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mousty00.chat_noir_api.exception.ApiException;
 import lombok.Builder;
-import lombok.Data;
 import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
 import java.util.Map;
 
-@Data
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ErrorResponse {
-    private Instant timestamp;
-    private int status;
-    private String error;
-    private String errorCode;
-    private String message;
-    private String path;
-    private Map<String, String> details;
+public record ErrorResponse(
+        Instant timestamp,
+        int status,
+        String error,
+        String errorCode,
+        String message,
+        String path,
+        Map<String, String> details
+) {
 
     public static ErrorResponse of(ApiException ex, String path) {
         return ErrorResponse.builder()
@@ -43,7 +42,6 @@ public class ErrorResponse {
     }
 
     public ErrorResponse withDetails(Map<String, String> details) {
-        this.details = details;
-        return this;
+        return new ErrorResponse(timestamp, status, error, errorCode, message, path, details);
     }
 }

@@ -86,15 +86,15 @@ public abstract class GenericService<ENTITY, DTO, REPO extends JpaRepository<ENT
     // ---------- UTILS ---------- //
 
     public <T> PaginatedResponse<T> buildPaginatedResponse(Page<T> page) {
-        PaginatedResponse<T> response = new PaginatedResponse<>();
-        response.setResult(page.getContent());
-        response.setCurrentPage(page.getNumber());
-        response.setTotalPages(page.getTotalPages());
-        response.setTotalItems(page.getTotalElements());
-        response.setPageSize(page.getSize());
-        response.setHasNext(page.hasNext());
-        response.setHasPrevious(page.hasPrevious());
-        return response;
+        return PaginatedResponse.<T>builder()
+                .result(page.getContent())
+                .currentPage(page.getNumber())
+                .totalPages(page.getTotalPages())
+                .totalItems(page.getTotalElements())
+                .pageSize(page.getSize())
+                .hasNext(page.hasNext())
+                .hasPrevious(page.hasPrevious())
+                .build();
     }
 
     public <T> ApiResponse<PaginatedResponse<T>> buildSuccessPageResponse(Page<T> page, String message) {
