@@ -18,6 +18,9 @@ import com.mousty00.chat_noir_api.util.PageDefaults;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -43,6 +46,8 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
         this.catCategoryRepository = catCategoryRepository;
     }
 
+    @Transactional
+    @Cacheable(value = "cats")
     public ApiResponse<PaginatedResponse<CatDTO>> getCats(Integer page, Integer size, CatFilterDTO filterDTO) {
         Pageable pageable = PageDefaults.of(page, size);
         Specification<Cat> spec = CatSpecifications.filter(filterDTO);
@@ -51,6 +56,7 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
         return buildSuccessPageResponse(pageResult, "Cats retrieved successfully");
     }
 
+    @Cacheable(value = "cat", key = "#catId")
     public ApiResponse<CatDTO> getCatById(UUID catId) {
         try {
             return getItemById(catId, ResourceType.CAT);
@@ -60,6 +66,10 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "cats", allEntries = true),
+            @CacheEvict(value = "cat", key = "#id")
+    })
     public ApiResponse<?> deleteCat(UUID id) {
         try {
             return deleteItemById(id);
@@ -70,6 +80,7 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
     }
 
     @Transactional
+    @CacheEvict(value = "cats", allEntries = true)
     public ApiResponse<CatDTO> saveCat(CatRequestDTO request) {
         try {
             if (request.categoryId() == null) {
@@ -101,6 +112,10 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "cats", allEntries = true),
+            @CacheEvict(value = "cat", key = "#id")
+    })
     public ApiResponse<CatDTO> updateCat(UUID id, CatDTO dto) {
         try {
 

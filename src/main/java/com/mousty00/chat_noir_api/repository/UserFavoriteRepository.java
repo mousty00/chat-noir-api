@@ -13,12 +13,6 @@ import java.util.UUID;
 public interface UserFavoriteRepository extends JpaRepository<UserFavorite, UUID> {
     Page<UserFavorite> findByUserId(UUID userId, Pageable pageable);
 
-    Optional<UserFavorite> findByUserIdAndCatMediaId(UUID userId, UUID catMediaId);
-
-    boolean existsByUserIdAndCatMediaId(UUID userId, UUID catMediaId);
-
-    void deleteByUserIdAndCatMediaId(UUID userId, UUID catMediaId);
-
     @Query("SELECT uf FROM UserFavorite uf JOIN CatMedia cm ON cm.id = uf.catMediaId WHERE uf.userId = :userId AND cm.cat.id = :catId")
     Optional<UserFavorite> findByUserIdAndCatId(@Param("userId") UUID userId, @Param("catId") UUID catId);
 

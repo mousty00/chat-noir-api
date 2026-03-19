@@ -43,6 +43,7 @@ public class UserFavoriteService {
     private final CatCategoryMapper catCategoryMapper;
     private final S3Service s3Service;
 
+    @Transactional
     public ApiResponse<PaginatedResponse<UserFavoriteDTO>> getUserFavorites(Integer page, Integer size) {
         UUID userId = resolveCurrentUserId();
         Pageable pageable = PageDefaults.of(page, size);

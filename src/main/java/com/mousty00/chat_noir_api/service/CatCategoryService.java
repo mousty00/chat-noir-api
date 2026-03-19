@@ -7,6 +7,8 @@ import com.mousty00.chat_noir_api.exception.CatException;
 import com.mousty00.chat_noir_api.util.generic.GenericService;
 import com.mousty00.chat_noir_api.mapper.CatCategoryMapper;
 import com.mousty00.chat_noir_api.repository.CatCategoryRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +21,8 @@ public class CatCategoryService extends GenericService<CatCategory, CatCategoryD
         super(repo, mapper);
     }
 
+    @Transactional
+    @Cacheable("categories")
     public ApiResponse<List<CatCategoryDTO>> getCategories() {
         try {
             List<CatCategoryDTO> categories = repo.findAll().stream().map(mapper::toDTO).toList();
