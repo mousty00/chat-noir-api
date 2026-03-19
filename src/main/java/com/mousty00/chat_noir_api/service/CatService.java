@@ -56,6 +56,7 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
         return buildSuccessPageResponse(pageResult, "Cats retrieved successfully");
     }
 
+    @Transactional
     @Cacheable(value = "cat", key = "#catId")
     public ApiResponse<CatDTO> getCatById(UUID catId) {
         try {

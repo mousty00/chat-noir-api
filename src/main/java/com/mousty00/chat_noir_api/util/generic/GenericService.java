@@ -27,6 +27,7 @@ public abstract class GenericService<ENTITY, DTO, REPO extends JpaRepository<ENT
      *
      * @param pageable The pagination info (usually passed from the Controller)
      */
+    @Transactional
     public ApiResponse<PaginatedResponse<DTO>> getPagedItems(Pageable pageable) {
 
         Pageable request = (pageable != null) ? pageable : PageRequest.of(0, PageDefaults.DEFAULT_SIZE);
@@ -42,6 +43,7 @@ public abstract class GenericService<ENTITY, DTO, REPO extends JpaRepository<ENT
                 .build();
     }
 
+    @Transactional
     public ApiResponse<DTO> getItemById(UUID id, ResourceType resourceType) {
         Result<DTO> result = getDtoResult(id, resourceType);
 
