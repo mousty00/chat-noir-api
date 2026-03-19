@@ -1,6 +1,5 @@
 databases:
   - name: chat-noir-db
-    plan: free
     databaseName: chat_noir
     user: chat_noir_user
 
