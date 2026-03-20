@@ -8,6 +8,7 @@ services:
     name: chat-noir-api
     runtime: docker
     plan: free
+    port: 8080
     healthCheckPath: /api/actuator/health
     envVars:
       - key: SPRING_DATASOURCE_USERNAME
