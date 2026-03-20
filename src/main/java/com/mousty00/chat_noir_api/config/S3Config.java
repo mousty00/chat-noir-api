@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -40,11 +39,10 @@ public class S3Config {
     }
 
     private AwsCredentialsProvider resolveCredentialsProvider() {
-        if (accessKey != null && !accessKey.isBlank()
-                && secretKey != null && !secretKey.isBlank()) {
-            return StaticCredentialsProvider.create(
-                    AwsBasicCredentials.create(accessKey, secretKey));
+        if (accessKey == null || accessKey.isBlank() || secretKey == null || secretKey.isBlank()) {
+            throw new IllegalStateException(
+                    "AWS credentials are required: set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables");
         }
-        return DefaultCredentialsProvider.builder().build();
+        return StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey));
     }
 }
