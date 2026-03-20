@@ -18,7 +18,7 @@ spring:
     init:
       mode: always
       data-locations: classpath:data.sql
-      continue-on-error: false
+      continue-on-error: true
 
   jpa:
     defer-datasource-initialization: true

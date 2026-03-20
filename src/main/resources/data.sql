@@ -6,4 +6,4 @@ INSERT INTO user_role (name, description) VALUES
     ('CONTENT_CREATOR', 'User who can submit new cat content for review'),
     ('DEVELOPER',       'Developer with API access for integration purposes'),
     ('PARTNER',         'Partner organization with special access')
-ON CONFLICT (name) DO NOTHING;
+ON CONFLICT DO NOTHING;
