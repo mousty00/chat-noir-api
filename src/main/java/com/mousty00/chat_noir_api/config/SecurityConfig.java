@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                        .requestMatchers("/actuator/**", "/ping").permitAll()
                         .requestMatchers("/graphql", "/graphiql", "/playground").permitAll()
                         .requestMatchers("/auth/**", "/cats/**", "/users/**").permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
