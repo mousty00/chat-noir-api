@@ -28,6 +28,8 @@ services:
 
       - key: SPRING_JPA_HIBERNATE_DDL_AUTO
         value: update
+      - key: SPRING_JPA_OPEN_IN_VIEW
+        value: "false"
 
       - key: JWT_SECRET
         sync: false
