@@ -61,9 +61,9 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=90s --retries=3 \
 
 ENTRYPOINT ["java", \
     "-XX:+UseContainerSupport", \
-    "-XX:MaxRAMPercentage=50.0", \
+    "-Xmx150m", \
+    "-XX:MaxMetaspaceSize=80m", \
     "-XX:+UseSerialGC", \
-    "-XX:MaxMetaspaceSize=128m", \
-    "-Xss512k", \
+    "-Xss256k", \
     "-Djava.security.egd=file:/dev/./urandom", \
     "org.springframework.boot.loader.launch.JarLauncher"]
