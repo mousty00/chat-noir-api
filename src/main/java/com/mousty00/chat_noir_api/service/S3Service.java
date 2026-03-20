@@ -22,7 +22,7 @@ public class S3Service {
 
     private final S3Client s3;
     private final S3Presigner s3Presigner;
-    @Value("${cloud.aws.s3.bucket}")
+    @Value("${aws.s3.bucket}")
     private String bucketName;
 
     public S3Service(S3Client s3, S3Presigner s3Presigner) {
