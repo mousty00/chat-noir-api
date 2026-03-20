@@ -18,8 +18,18 @@ services:
         fromDatabase:
           name: chat-noir-db
           property: password
-      - key: SPRING_DATASOURCE_URL
-        sync: false
+      - key: DB_HOST
+        fromDatabase:
+          name: chat-noir-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: chat-noir-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: chat-noir-db
+          property: database
 
       - key: SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE
         value: "3"
