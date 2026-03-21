@@ -4,6 +4,5 @@ INSERT INTO user_role (name, description) VALUES
     ('PREMIUM',         'Premium user with extended API access and features'),
     ('MODERATOR',       'Content moderator who can review and moderate cat submissions'),
     ('CONTENT_CREATOR', 'User who can submit new cat content for review'),
-    ('DEVELOPER',       'Developer with API access for integration purposes'),
-    ('PARTNER',         'Partner organization with special access')
+    ('DEVELOPER',       'Developer with API access for integration purposes')
 ON CONFLICT DO NOTHING;
