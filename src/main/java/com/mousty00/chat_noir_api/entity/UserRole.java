@@ -21,7 +21,7 @@ public class UserRole {
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(name = "name", nullable = false, length = 25)
+    @Column(name = "name", nullable = false, length = 25, unique = true)
     private String name;
 
     @Column(name = "description", length = 100)

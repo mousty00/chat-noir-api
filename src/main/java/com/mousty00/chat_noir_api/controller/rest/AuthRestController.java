@@ -6,10 +6,8 @@ import com.mousty00.chat_noir_api.dto.auth.LoginResponse;
 import com.mousty00.chat_noir_api.dto.auth.RegisterRequest;
 import com.mousty00.chat_noir_api.service.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,12 +17,12 @@ public class AuthRestController {
     private final AuthService service;
 
     @PostMapping("/login")
-    public ApiResponse<LoginResponse> login(@RequestParam LoginRequest request) {
+    public ApiResponse<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
         return service.login(request);
     }
 
-    @PostMapping
-    public ApiResponse<String> register(@RequestParam RegisterRequest request) {
+    @PostMapping("/register")
+    public ApiResponse<String> register(@RequestBody @Valid RegisterRequest request) {
         return service.register(request);
     }
 }
