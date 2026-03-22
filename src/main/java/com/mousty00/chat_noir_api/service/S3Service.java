@@ -50,8 +50,10 @@ public class S3Service {
             s3.putObject(objectRequest, RequestBody.fromInputStream(inputStream, file.getSize()));
 
             return fileName;
+        } catch (S3Exception e) {
+            throw new RuntimeException("Failed to upload file to S3: " + e.awsErrorDetails().errorMessage(), e);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to upload file to S3", e);
+            throw new RuntimeException("Failed to upload file to S3: " + e.getMessage(), e);
         }
     }
 

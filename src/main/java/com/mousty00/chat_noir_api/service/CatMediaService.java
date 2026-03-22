@@ -16,6 +16,8 @@ import com.mousty00.chat_noir_api.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,6 +54,10 @@ public class CatMediaService {
     private String baseUrl;
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "cats", allEntries = true),
+            @CacheEvict(value = "cat", key = "#catId")
+    })
     public ApiResponse<String> uploadMediaWithCleanup(UUID catId, MultipartFile imageFile) {
         try {
             mediaService.validateImageFile(imageFile);
@@ -60,20 +66,12 @@ public class CatMediaService {
             Cat cat = getCatOrThrow(catId);
             User user = getUserOrThrow(username);
 
-            checkUploadPermission(cat, username, user);
+            checkUploadPermission(user);
 
             String imageKey = uploadToS3(imageFile, username, catId);
-            String oldMediaKey = saveMediaRecord(cat, imageFile, imageKey);
-
-            mediaService.cleanupOldMedia(oldMediaKey);
+            saveMediaRecord(cat, imageFile, imageKey);
 
             String url = s3Service.generatePresignedUrl(imageKey);
-
-            cat.getMedia().setMediaKey(imageKey);
-            cat.getMedia().setContentUrl(url);
-
-            catMediaRepository.save(cat.getMedia());
-            catRepository.saveAndFlush(cat);
 
             return ApiResponse.<String>builder()
                     .status(HttpStatus.OK.value())
@@ -160,9 +158,8 @@ public class CatMediaService {
                 .orElseThrow(AuthenticationException::accessDenied);
     }
 
-    private void checkUploadPermission(Cat cat, String username, User user) {
-        boolean isUserCreator = Objects.equals(cat.getSourceName(), username);
-        if (!isUserCreator && !user.isAdmin()) {
+    private void checkUploadPermission(User user) {
+        if (!user.isAdmin()) {
             throw AuthenticationException.accessDenied();
         }
     }
