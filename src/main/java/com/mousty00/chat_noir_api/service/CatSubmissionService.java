@@ -100,24 +100,29 @@ public class CatSubmissionService {
 
         String extension = mediaService.sanitizeExtension(FilenameUtils.getExtension(file.getOriginalFilename()));
         String mediaKey = String.format(SUBMISSION_MEDIA_PATH, currentUserId, submissionId, extension);
+        String oldMediaKey = submission.getMediaKey();
 
         try {
-            CompletableFuture<String> upload = s3Service.uploadFileAsync(file, mediaKey);
-            upload.get();
+            s3Service.uploadFileAsync(file, mediaKey).get();
         } catch (Exception e) {
             throw new RuntimeException("Failed to upload submission media", e);
         }
 
-        // Delete old media from S3 if it exists
-        if (submission.getMediaKey() != null) {
-            try { s3Service.deleteFile(submission.getMediaKey()); } catch (Exception ignored) {}
+        if (oldMediaKey != null) {
+            try { s3Service.deleteFile(oldMediaKey); } catch (Exception ignored) {}
         }
 
-        submission.setMediaKey(mediaKey);
-        submissionRepository.save(submission);
+        persistSubmissionMediaKey(submissionId, mediaKey);
 
         return ApiResponse.success(HttpStatus.OK.value(), "Media uploaded successfully",
                 s3Service.generatePresignedUrl(mediaKey));
+    }
+
+    @Transactional
+    protected void persistSubmissionMediaKey(UUID submissionId, String mediaKey) {
+        CatSubmission submission = getOrThrow(submissionId);
+        submission.setMediaKey(mediaKey);
+        submissionRepository.save(submission);
     }
 
     @Transactional
