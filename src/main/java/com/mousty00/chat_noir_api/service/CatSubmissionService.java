@@ -7,14 +7,15 @@ import com.mousty00.chat_noir_api.dto.cat.CatSubmissionDTO;
 import com.mousty00.chat_noir_api.dto.cat.CatSubmissionRequestDTO;
 import com.mousty00.chat_noir_api.entity.Cat;
 import com.mousty00.chat_noir_api.entity.CatCategory;
+import com.mousty00.chat_noir_api.entity.CatMedia;
 import com.mousty00.chat_noir_api.entity.CatSubmission;
 import com.mousty00.chat_noir_api.entity.SubmissionStatus;
-import com.mousty00.chat_noir_api.entity.User;
 import com.mousty00.chat_noir_api.exception.AuthenticationException;
 import com.mousty00.chat_noir_api.exception.CatException;
 import com.mousty00.chat_noir_api.exception.CatSubmissionException;
 import com.mousty00.chat_noir_api.mapper.CatCategoryMapper;
 import com.mousty00.chat_noir_api.repository.CatCategoryRepository;
+import com.mousty00.chat_noir_api.repository.CatMediaRepository;
 import com.mousty00.chat_noir_api.repository.CatRepository;
 import com.mousty00.chat_noir_api.repository.CatSubmissionRepository;
 import com.mousty00.chat_noir_api.repository.UserRepository;
@@ -22,6 +23,7 @@ import com.mousty00.chat_noir_api.util.PageDefaults;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,11 +31,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -41,12 +45,16 @@ import java.util.UUID;
 public class CatSubmissionService {
 
     private static final int DAILY_SUBMISSION_LIMIT = 3;
+    private static final String SUBMISSION_MEDIA_PATH = "submissions/%s/%s.%s";
 
     private final CatSubmissionRepository submissionRepository;
     private final CatRepository catRepository;
     private final CatCategoryRepository catCategoryRepository;
+    private final CatMediaRepository catMediaRepository;
     private final UserRepository userRepository;
     private final CatCategoryMapper catCategoryMapper;
+    private final S3Service s3Service;
+    private final MediaService mediaService;
 
     @Transactional
     public ApiResponse<CatSubmissionDTO> submitCat(CatSubmissionRequestDTO request) {
@@ -75,6 +83,41 @@ public class CatSubmissionService {
         } catch (Exception e) {
             throw CatSubmissionException.submissionSaveError(e);
         }
+    }
+
+    public ApiResponse<String> uploadSubmissionMedia(UUID submissionId, MultipartFile file) {
+        mediaService.validateImageFile(file);
+
+        CatSubmission submission = getOrThrow(submissionId);
+        UUID currentUserId = resolveCurrentUserId();
+
+        if (!submission.getUserId().equals(currentUserId)) {
+            throw AuthenticationException.accessDenied();
+        }
+        if (submission.getStatus() != SubmissionStatus.PENDING) {
+            throw CatSubmissionException.alreadyReviewed(submissionId);
+        }
+
+        String extension = mediaService.sanitizeExtension(FilenameUtils.getExtension(file.getOriginalFilename()));
+        String mediaKey = String.format(SUBMISSION_MEDIA_PATH, currentUserId, submissionId, extension);
+
+        try {
+            CompletableFuture<String> upload = s3Service.uploadFileAsync(file, mediaKey);
+            upload.get();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to upload submission media", e);
+        }
+
+        // Delete old media from S3 if it exists
+        if (submission.getMediaKey() != null) {
+            try { s3Service.deleteFile(submission.getMediaKey()); } catch (Exception ignored) {}
+        }
+
+        submission.setMediaKey(mediaKey);
+        submissionRepository.save(submission);
+
+        return ApiResponse.success(HttpStatus.OK.value(), "Media uploaded successfully",
+                s3Service.generatePresignedUrl(mediaKey));
     }
 
     @Transactional
@@ -109,14 +152,26 @@ public class CatSubmissionService {
                 .category(submission.getCategory())
                 .sourceName(submission.getSourceName())
                 .build();
-        catRepository.save(cat);
+        Cat savedCat = catRepository.save(cat);
+
+        if (submission.getMediaKey() != null) {
+            CatMedia media = CatMedia.builder()
+                    .cat(savedCat)
+                    .mediaKey(submission.getMediaKey())
+                    .mediaFormat(resolveMediaFormat(submission.getMediaKey()))
+                    .contentUrl(s3Service.generatePresignedUrl(submission.getMediaKey()))
+                    .build();
+            CatMedia savedMedia = catMediaRepository.save(media);
+            savedCat.setMedia(savedMedia);
+            catRepository.save(savedCat);
+        }
 
         submission.setStatus(SubmissionStatus.APPROVED);
         submission.setReviewedAt(LocalDateTime.now());
         submission.setReviewedBy(adminId);
         submissionRepository.save(submission);
 
-        log.info("Submission {} approved by admin {}, cat created", submissionId, adminId);
+        log.info("Submission {} approved by admin {}, cat {} created", submissionId, adminId, savedCat.getId());
         return ApiResponse.success(HttpStatus.OK.value(), "Submission approved", toDTO(submission));
     }
 
@@ -159,6 +214,16 @@ public class CatSubmissionService {
         return userRepository.findByUsername(username)
                 .orElseThrow(AuthenticationException::accessDenied)
                 .getId();
+    }
+
+    private String resolveMediaFormat(String mediaKey) {
+        String ext = FilenameUtils.getExtension(mediaKey);
+        return switch (ext.toLowerCase()) {
+            case "png"  -> "image/png";
+            case "gif"  -> "image/gif";
+            case "webp" -> "image/webp";
+            default     -> "image/jpeg";
+        };
     }
 
     private ApiResponse<PaginatedResponse<CatSubmissionDTO>> buildPageResponse(Page<CatSubmission> page, String message) {

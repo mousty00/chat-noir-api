@@ -63,4 +63,7 @@ public class CatSubmission {
 
     @Column(name = "rejection_reason", length = 300)
     private String rejectionReason;
+
+    @Column(name = "media_key")
+    private String mediaKey;
 }
