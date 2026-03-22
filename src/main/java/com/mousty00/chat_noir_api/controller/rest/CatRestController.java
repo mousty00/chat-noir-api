@@ -45,7 +45,7 @@ public class CatRestController {
 
     @PutMapping("/cats/{id}")
     @PreAuthorize("@roleChecker.hasAllowedRole(authentication)")
-    public ApiResponse<CatDTO> updateCat(@PathVariable("id") UUID catId, @RequestBody @Valid CatDTO request) {
+    public ApiResponse<CatDTO> updateCat(@PathVariable("id") UUID catId, @RequestBody @Valid CatRequestDTO request) {
         return service.updateCat(catId, request);
     }
 }
