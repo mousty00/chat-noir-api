@@ -47,7 +47,7 @@ public class CatController {
 
     @MutationMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<CatDTO> updateCat(@Argument UUID id, @Argument CatDTO cat) {
+    public ApiResponse<CatDTO> updateCat(@Argument UUID id, @Argument CatRequestDTO cat) {
         return service.updateCat(id, cat);
     }
 

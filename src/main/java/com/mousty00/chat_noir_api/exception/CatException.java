@@ -25,7 +25,7 @@ public class CatException extends ApiException {
     }
 
     public static CatException catMediaNotFound(UUID id) {
-        return new CatException("cat media not found" + id, CatErrorCode.CAT_NOT_FOUND);
+        return new CatException("Cat media not found with id: " + id, CatErrorCode.CAT_MEDIA_NOT_FOUND);
     }
 
     public static CatException catMediaDeleteError(Throwable cause) {
@@ -59,7 +59,7 @@ public class CatException extends ApiException {
         INVALID_CAT_DATA("CAT_006", HttpStatus.BAD_REQUEST),
         CAT_SAVE_ERROR("CAT_007", HttpStatus.INTERNAL_SERVER_ERROR),
         CAT_DELETE_ERROR("CAT_008", HttpStatus.INTERNAL_SERVER_ERROR),
-        CATEGORY_LIST_ERROR("CAT__009", HttpStatus.INTERNAL_SERVER_ERROR),
+        CATEGORY_LIST_ERROR("CAT_009", HttpStatus.INTERNAL_SERVER_ERROR),
         CAT_MEDIA_DELETE_ERROR("CAT_010", HttpStatus.INTERNAL_SERVER_ERROR);
 
 

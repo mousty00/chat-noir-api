@@ -84,12 +84,12 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
     @CacheEvict(value = "cats", allEntries = true)
     public ApiResponse<CatDTO> saveCat(CatRequestDTO request) {
         try {
-            if (request.categoryId() == null) {
+            if (request.category() == null) {
                 throw categoryRequired();
             }
 
-            CatCategory category = catCategoryRepository.findById(request.categoryId())
-                    .orElseThrow(() -> categoryNotFound(request.categoryId()));
+            CatCategory category = catCategoryRepository.findById(request.category().id())
+                    .orElseThrow(() -> categoryNotFound(request.category().id()));
 
             Cat cat = mapper.toEntityFromRequest(request);
             cat.setCategory(category);
@@ -117,19 +117,20 @@ public class CatService extends GenericService<Cat, CatDTO, CatRepository, CatMa
             @CacheEvict(value = "cats", allEntries = true),
             @CacheEvict(value = "cat", key = "#id")
     })
-    public ApiResponse<CatDTO> updateCat(UUID id, CatDTO dto) {
+    public ApiResponse<CatDTO> updateCat(UUID id, CatRequestDTO request) {
         try {
 
             repo.findById(id).orElseThrow(() -> catNotFound(id));
 
-            if (dto.category() == null) {
+            if (request.category() == null) {
                 throw categoryRequired();
             }
 
-            CatCategory category = catCategoryRepository.findById(dto.category().id())
-                    .orElseThrow(() -> categoryNotFound(dto.category().id()));
+            CatCategory category = catCategoryRepository.findById(request.category().id())
+                    .orElseThrow(() -> categoryNotFound(request.category().id()));
 
-            Cat cat = mapper.toEntity(dto);
+            Cat cat = mapper.toEntityFromRequest(request);
+            cat.setId(id);
             cat.setCategory(category);
             Cat savedCat = repo.save(cat);
 

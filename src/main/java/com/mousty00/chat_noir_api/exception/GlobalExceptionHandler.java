@@ -31,8 +31,8 @@ public class GlobalExceptionHandler {
         errorDetails.put("path", request.getRequestURI());
         errorDetails.put("errorCode", ex.getErrorCode());
 
-        if (ex instanceof ValidationException && ((ValidationException) ex).getErrors() != null) {
-            errorDetails.put("validationErrors", ((ValidationException) ex).getErrors());
+        if (ex instanceof ValidationException ve && ve.getErrors() != null) {
+            errorDetails.put("validationErrors", ve.getErrors());
         }
 
         ApiResponse<Map<String, Object>> response = ApiResponse.error(

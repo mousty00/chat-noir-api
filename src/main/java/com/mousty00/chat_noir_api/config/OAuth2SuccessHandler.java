@@ -22,7 +22,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final AuthService authService;
 
     @Value("${frontend.domain:localhost:3000}")
-    private String FE_DOMAIN;
+    private String feDomain;
 
     @Override
     public void onAuthenticationSuccess(@NonNull HttpServletRequest request,
@@ -30,16 +30,19 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                                         Authentication authentication) throws IOException {
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        assert oAuth2User != null;
+        if (oAuth2User == null) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "OAuth2 authentication failed");
+            return;
+        }
 
         LoginResponse loginResponse = authService.loginOrRegisterOAuth2User(oAuth2User);
         String token = loginResponse.token();
 
-        boolean hasPort = FE_DOMAIN.contains(":");
+        boolean hasPort = feDomain.contains(":");
         String redirectUrl = UriComponentsBuilder.newInstance()
                 .scheme(hasPort ? "http" : "https")
-                .host(hasPort ? FE_DOMAIN.split(":")[0] : FE_DOMAIN)
-                .port(hasPort ? FE_DOMAIN.split(":")[1] : null)
+                .host(hasPort ? feDomain.split(":")[0] : feDomain)
+                .port(hasPort ? feDomain.split(":")[1] : null)
                 .path("/oauth2/callback")
                 .queryParam("token", token)
                 .build()

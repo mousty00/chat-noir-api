@@ -29,7 +29,7 @@ public abstract class CatMapper implements GenericMapper<Cat, CatDTO> {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "media", ignore = true)
-    @Mapping(target = "category", source = "categoryId", qualifiedByName = "idToCategory")
+    @Mapping(target = "category", source = "category.id", qualifiedByName = "idToCategory")
     public abstract Cat toEntityFromRequest(CatRequestDTO request);
 
     @Named("mapMediaToImage")

@@ -7,8 +7,8 @@ extend type Query {
 
 extend type Mutation {
     deleteCat(id: ID!): ApiResponseCat
-    createCat(cat: CatRequest): ApiResponseCat
-    updateCat(id: ID ,cat: CatRequest): ApiResponseCat
+    createCat(cat: CatRequest!): ApiResponseCat
+    updateCat(id: ID!, cat: CatRequest!): ApiResponseCat
     deleteCatMedia(id: ID!): ApiResponseString
 }
 
