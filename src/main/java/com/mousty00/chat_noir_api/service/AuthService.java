@@ -90,7 +90,7 @@ public class AuthService {
 
         String email = rawEmail.toLowerCase(Locale.ROOT);
 
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailWithRole(email)
                 .orElseGet(() -> registerOAuth2User(email, name, googleId));
 
         return buildLoginResponse(user);
