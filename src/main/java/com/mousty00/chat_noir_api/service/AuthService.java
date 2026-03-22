@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 @Service
@@ -51,11 +52,13 @@ public class AuthService {
 
     @Transactional
     public ApiResponse<String> register(RegisterRequest request) {
+        String normalizedEmail = request.email().toLowerCase(Locale.ROOT);
+
         if (userRepository.existsByUsername(request.username())) {
             return ApiResponse.error(HttpStatus.CONFLICT.value(), "Username already exists");
         }
 
-        if (userRepository.existsByEmail(request.email())) {
+        if (userRepository.existsByEmailIgnoreCase(normalizedEmail)) {
             return ApiResponse.error(HttpStatus.CONFLICT.value(), "Email already exists");
         }
 
@@ -64,7 +67,7 @@ public class AuthService {
 
         User user = User.builder()
                 .username(request.username())
-                .email(request.email())
+                .email(normalizedEmail)
                 .password(passwordEncoder.encode(request.password()))
                 .isAdmin(false)
                 .createdAt(Instant.now())
@@ -77,13 +80,15 @@ public class AuthService {
 
     @Transactional
     public LoginResponse loginOrRegisterOAuth2User(OAuth2User oAuth2User) {
-        String email    = oAuth2User.getAttribute("email");
+        String rawEmail = oAuth2User.getAttribute("email");
         String name     = oAuth2User.getAttribute("name");
         String googleId = oAuth2User.getAttribute("sub");
 
-        if (email == null) {
+        if (rawEmail == null) {
             throw AuthenticationException.badCredentials();
         }
+
+        String email = rawEmail.toLowerCase(Locale.ROOT);
 
         User user = userRepository.findByEmail(email)
                 .orElseGet(() -> registerOAuth2User(email, name, googleId));
