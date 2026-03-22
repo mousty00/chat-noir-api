@@ -1,0 +1,65 @@
+extend type Query {
+    mySubmissions(page: Int, size: Int): ApiResponsePaginatedSubmission
+    pendingSubmissions(page: Int, size: Int): ApiResponsePaginatedSubmission
+}
+
+extend type Mutation {
+    submitCat(submission: CatSubmissionRequest!): ApiResponseSubmission
+    approveSubmission(id: ID!): ApiResponseSubmission
+    rejectSubmission(id: ID!, reason: String): ApiResponseSubmission
+}
+
+input CatSubmissionRequest {
+    name: String!
+    color: String
+    category: CategoryRequest
+    sourceName: String
+    notes: String
+}
+
+type CatSubmission {
+    id: ID!
+    userId: ID!
+    name: String!
+    color: String
+    category: Category
+    sourceName: String
+    notes: String
+    status: SubmissionStatus!
+    createdAt: String
+    reviewedAt: String
+    reviewedBy: ID
+    rejectionReason: String
+}
+
+enum SubmissionStatus {
+    PENDING
+    APPROVED
+    REJECTED
+}
+
+type ApiResponseSubmission implements ApiResponse {
+    status: Int!
+    error: Boolean!
+    message: String
+    success: Boolean!
+    data: CatSubmission
+}
+
+type PaginatedResponseSubmission implements PaginatedResponse {
+    currentPage: Int!
+    totalPages: Int!
+    totalItems: Int!
+    pageSize: Int!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+    result: [CatSubmission!]!
+}
+
+type ApiResponsePaginatedSubmission implements ApiResponsePaginated {
+    status: Int!
+    error: Boolean!
+    message: String
+    success: Boolean!
+    data: PaginatedResponseSubmission
+}
