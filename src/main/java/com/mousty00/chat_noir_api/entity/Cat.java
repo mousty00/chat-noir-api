@@ -11,7 +11,9 @@ import java.util.UUID;
 @ToString
 @Builder
 @Entity
-@Table(name = "cat")
+@Table(name = "cat", indexes = {
+        @Index(name = "idx_cat_category_id", columnList = "category_id")
+})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Cat {

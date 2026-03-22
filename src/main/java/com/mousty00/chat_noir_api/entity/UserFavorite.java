@@ -11,7 +11,10 @@ import java.util.UUID;
 @ToString
 @Builder
 @Entity
-@Table(name = "user_favorite")
+@Table(name = "user_favorite", indexes = {
+        @Index(name = "idx_user_favorite_user_id", columnList = "user_id"),
+        @Index(name = "idx_user_favorite_cat_media_id", columnList = "cat_media_id")
+})
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserFavorite {

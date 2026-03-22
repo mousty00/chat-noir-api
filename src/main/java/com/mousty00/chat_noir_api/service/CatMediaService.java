@@ -53,7 +53,6 @@ public class CatMediaService {
     @Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
 
-    @Transactional
     @Caching(evict = {
             @CacheEvict(value = "cats", allEntries = true),
             @CacheEvict(value = "cat", key = "#catId")
@@ -63,13 +62,14 @@ public class CatMediaService {
             mediaService.validateImageFile(imageFile);
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             String username = Objects.requireNonNull(auth).getName();
+
             Cat cat = getCatOrThrow(catId);
             User user = getUserOrThrow(username);
-
             checkUploadPermission(user);
 
             String imageKey = uploadToS3(imageFile, username, catId);
-            saveMediaRecord(cat, imageFile, imageKey);
+
+            persistMediaRecord(cat.getId(), imageFile, imageKey);
 
             String url = s3Service.generatePresignedUrl(imageKey);
 
@@ -84,6 +84,12 @@ public class CatMediaService {
         } catch (Exception e) {
             return handleUploadException(catId, e);
         }
+    }
+
+    @Transactional
+    protected void persistMediaRecord(UUID catId, MultipartFile imageFile, String imageKey) {
+        Cat cat = getCatOrThrow(catId);
+        saveMediaRecord(cat, imageFile, imageKey);
     }
 
     public ApiResponse<CatMediaStreamInfo> getCatMediaStreamInfo(UUID id) {
@@ -134,6 +140,7 @@ public class CatMediaService {
         }
     }
 
+    @Transactional
     public ApiResponse<String> deleteCatMedia(UUID id) {
         try {
             Cat cat = getCatOrThrow(id);
@@ -228,9 +235,8 @@ public class CatMediaService {
         }
 
         String mediaKey = cat.getMedia().getMediaKey();
-        String contentType = s3Service.getFileContentType(mediaKey);
-        Long contentLength = s3Service.getFileSize(mediaKey);
+        S3Service.S3FileMetadata meta = s3Service.getFileMetadata(mediaKey);
 
-        return MediaMetadata.from(mediaKey, cat.getName(), contentType, contentLength);
+        return MediaMetadata.from(mediaKey, cat.getName(), meta.contentType(), meta.contentLength());
     }
 }

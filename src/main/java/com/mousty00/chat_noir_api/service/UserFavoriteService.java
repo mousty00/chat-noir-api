@@ -19,6 +19,7 @@ import com.mousty00.chat_noir_api.repository.UserRepository;
 import com.mousty00.chat_noir_api.util.PageDefaults;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -145,9 +146,14 @@ public class UserFavoriteService {
     private UUID resolveCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = Objects.requireNonNull(auth).getName();
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(UserException::userNotFound);
-        return user.getId();
+        return resolveUserIdByUsername(username);
+    }
+
+    @Cacheable(value = "userIds", key = "#username")
+    public UUID resolveUserIdByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(UserException::userNotFound)
+                .getId();
     }
 
     private UserFavoriteDTO toDTO(UserFavorite favorite, CatMedia media, Cat cat) {

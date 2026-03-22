@@ -1,6 +1,7 @@
 package com.mousty00.chat_noir_api.service;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -59,7 +60,7 @@ public class S3Service {
 
     @Async
     public CompletableFuture<String> uploadFileAsync(MultipartFile file, String key) {
-        return CompletableFuture.completedFuture(uploadFile(file, key));
+        return CompletableFuture.supplyAsync(() -> uploadFile(file, key));
     }
 
     /**
@@ -89,13 +90,27 @@ public class S3Service {
     }
 
     /**
-     * Generates a pre-signed URL with default 1 hour expiration
-     *
-     * @param fileKey The S3 key/filename
-     * @return Pre-signed URL valid for 1 hour
+     * Generates a pre-signed URL with default 1 hour expiration.
+     * Result is cached for 50 minutes (URLs expire in 60 min).
      */
+    @Cacheable(value = "presignedUrls", key = "#fileKey", unless = "#fileKey == null")
     public String generatePresignedUrl(String fileKey) {
         return generatePresignedUrl(fileKey, Duration.ofHours(1));
+    }
+
+    /**
+     * Returns content-type and content-length in a single HeadObject call.
+     */
+    public record S3FileMetadata(String contentType, long contentLength) {}
+
+    public S3FileMetadata getFileMetadata(String fileKey) {
+        try {
+            HeadObjectResponse response = s3.headObject(
+                    HeadObjectRequest.builder().bucket(bucketName).key(fileKey).build());
+            return new S3FileMetadata(response.contentType(), response.contentLength());
+        } catch (S3Exception e) {
+            throw new RuntimeException("Failed to get file metadata from S3: " + e.getMessage(), e);
+        }
     }
 
     /**

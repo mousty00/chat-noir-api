@@ -17,7 +17,7 @@ public class CacheConfig {
     public CacheManager cacheManager() {
         CaffeineCacheManager manager = new CaffeineCacheManager();
 
-        // Paginated cat list
+        // Paginated cat list — moderate churn
         manager.registerCustomCache("cats",
                 Caffeine.newBuilder()
                         .maximumSize(200)
@@ -28,15 +28,31 @@ public class CacheConfig {
         // Single cat by ID
         manager.registerCustomCache("cat",
                 Caffeine.newBuilder()
-                        .maximumSize(500)
-                        .expireAfterWrite(10, TimeUnit.MINUTES)
+                        .maximumSize(1000)
+                        .expireAfterWrite(15, TimeUnit.MINUTES)
                         .recordStats()
                         .build());
 
-        // Categories rarely change
+        // Categories change rarely
         manager.registerCustomCache("categories",
                 Caffeine.newBuilder()
                         .maximumSize(50)
+                        .expireAfterWrite(60, TimeUnit.MINUTES)
+                        .recordStats()
+                        .build());
+
+        // S3 presigned URLs — expire in 60 min, cache for 50 min
+        manager.registerCustomCache("presignedUrls",
+                Caffeine.newBuilder()
+                        .maximumSize(2000)
+                        .expireAfterWrite(50, TimeUnit.MINUTES)
+                        .recordStats()
+                        .build());
+
+        // username → UUID mapping (stable, long-lived)
+        manager.registerCustomCache("userIds",
+                Caffeine.newBuilder()
+                        .maximumSize(500)
                         .expireAfterWrite(60, TimeUnit.MINUTES)
                         .recordStats()
                         .build());
