@@ -3,6 +3,7 @@ package com.mousty00.chat_noir_api.jwt;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -13,11 +14,21 @@ import java.util.stream.Collectors;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret:defaultSecretKeyChangeInProduction!123}")
+    @Value("${jwt.secret:}")
     private String secret;
 
     @Value("${jwt.expiration:86400000}")
     private Long expiration;
+
+    @PostConstruct
+    private void validateSecret() {
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalStateException("jwt.secret (JWT_SECRET) must be configured and non-empty");
+        }
+        if (secret.length() < 32) {
+            throw new IllegalStateException("jwt.secret (JWT_SECRET) must be at least 32 characters");
+        }
+    }
 
     public String generateToken(String username, String email, List<String> roles, boolean isAdmin) {
         List<String> springRoles = roles.stream()

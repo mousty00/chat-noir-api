@@ -39,14 +39,15 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String token = loginResponse.token();
 
         boolean hasPort = feDomain.contains(":");
-        String redirectUrl = UriComponentsBuilder.newInstance()
+        String baseUrl = UriComponentsBuilder.newInstance()
                 .scheme(hasPort ? "http" : "https")
                 .host(hasPort ? feDomain.split(":")[0] : feDomain)
                 .port(hasPort ? feDomain.split(":")[1] : null)
                 .path("/oauth2/callback")
-                .queryParam("token", token)
                 .build()
                 .toUriString();
+
+        String redirectUrl = baseUrl + "#token=" + token;
 
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }

@@ -120,7 +120,7 @@ public class UserService extends GenericService<User, UserDTO, UserRepository, U
             return ApiResponse.badRequest(e.getMessage());
         } catch (Exception e) {
             log.error("Profile image upload failed for user {}: {}", userId, e.getMessage(), e);
-            return ApiResponse.internalError("Failed to upload profile image: " + e.getMessage());
+            return ApiResponse.internalError("Failed to upload profile image");
         }
     }
 }

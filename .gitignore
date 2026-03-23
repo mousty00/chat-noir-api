@@ -15,6 +15,7 @@ target/
 
 ### Secret Configuration Files ###
 application*.properties
+application-dev.local.yml
 
 ## Environments
 *.env

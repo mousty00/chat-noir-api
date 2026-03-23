@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/**", "/ping").permitAll()
                         .requestMatchers("/graphql", "/graphiql", "/playground").permitAll()
-                        .requestMatchers("/auth/**", "/cats/**", "/users/**").permitAll()
+                        .requestMatchers("/auth/**", "/cats/**").permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())

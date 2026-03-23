@@ -179,7 +179,6 @@ public class GlobalExceptionHandler {
 
         Map<String, Object> errorDetails = new HashMap<>();
         errorDetails.put("path", request.getRequestURI());
-        errorDetails.put("exceptionType", ex.getClass().getSimpleName());
 
         ApiResponse<Map<String, Object>> response = ApiResponse.error(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
