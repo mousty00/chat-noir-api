@@ -3,6 +3,7 @@ package com.mousty00.chat_noir_api.config;
 import com.mousty00.chat_noir_api.jwt.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -24,6 +25,9 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
+    @Value("${frontend.domain:localhost:3000}")
+    private String feDomain;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
             CorsConfigurationSource corsConfigurationSource,
@@ -32,7 +36,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/**", "/ping").permitAll()
                         .requestMatchers("/graphql", "/graphiql", "/playground").permitAll()
@@ -43,7 +47,13 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         if (clientRegistrationRepository != null) {
-            http.oauth2Login(oauth2 -> oauth2.successHandler(oAuth2SuccessHandler));
+            boolean hasPort = feDomain.contains(":");
+            String frontendBaseUrl = hasPort ? "http://" + feDomain : "https://" + feDomain;
+
+            http.oauth2Login(oauth2 -> oauth2
+                    .successHandler(oAuth2SuccessHandler)
+                    .failureHandler((request, response, exception) ->
+                            response.sendRedirect(frontendBaseUrl + "/auth/error")));
         }
 
         return http.build();
