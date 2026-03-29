@@ -2,6 +2,7 @@ package com.mousty00.chat_noir_api.config;
 
 import com.mousty00.chat_noir_api.jwt.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
@@ -52,8 +54,10 @@ public class SecurityConfig {
 
             http.oauth2Login(oauth2 -> oauth2
                     .successHandler(oAuth2SuccessHandler)
-                    .failureHandler((request, response, exception) ->
-                            response.sendRedirect(frontendBaseUrl + "/auth/error")));
+                    .failureHandler((request, response, exception) -> {
+                        log.error("OAuth2 authentication failed: {}", exception.getMessage(), exception);
+                        response.sendRedirect(frontendBaseUrl + "/auth/error");
+                    }));
         }
 
         return http.build();
