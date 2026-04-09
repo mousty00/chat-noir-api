@@ -132,10 +132,15 @@ public class AuthService {
         String normalizedEmail = request.email().toLowerCase(Locale.ROOT);
         userRepository.findByEmail(normalizedEmail).ifPresent(user -> {
             String token = UUID.randomUUID().toString();
+            Instant expiry = Instant.now().plusSeconds(passwordResetExpiryMinutes * 60);
+
+            if (!emailService.sendPasswordResetEmail(user.getEmail(), token)) {
+                return;
+            }
+
             user.setPasswordResetToken(token);
-            user.setPasswordResetTokenExpiry(Instant.now().plusSeconds(passwordResetExpiryMinutes * 60));
+            user.setPasswordResetTokenExpiry(expiry);
             userRepository.save(user);
-            emailService.sendPasswordResetEmail(user.getEmail(), token);
         });
         return ApiResponse.success(HttpStatus.OK.value(),
                 "If an account with that email exists, a reset link has been sent.", "");

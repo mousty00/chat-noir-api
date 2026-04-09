@@ -5,6 +5,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class EmailService {
     @Value("${app.password-reset.expiry-minutes:60}")
     private long expiryMinutes;
 
-    public void sendPasswordResetEmail(String to, String token) {
+    public boolean sendPasswordResetEmail(String to, String token) {
         boolean hasPort = feDomain.contains(":");
         String baseUrl = hasPort ? "http://" + feDomain : "https://" + feDomain;
         String resetLink = baseUrl + "/reset-password?token=" + token;
@@ -50,9 +51,10 @@ public class EmailService {
 
             mailSender.send(message);
             log.info("Password reset email sent to {}", to);
-        } catch (MessagingException e) {
+            return true;
+        } catch (MessagingException | MailException e) {
             log.error("Failed to send password reset email to {}: {}", to, e.getMessage(), e);
-            throw new RuntimeException("Failed to send email", e);
+            return false;
         }
     }
 }
