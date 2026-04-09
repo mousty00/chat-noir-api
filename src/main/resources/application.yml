@@ -46,21 +46,6 @@ spring:
         order_updates: true
         generate_statistics: false
 
-  mail:
-    host: ${MAIL_HOST:smtp.gmail.com}
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          connectiontimeout: 5000
-          starttls:
-            enable: true
-          timeout: 5000
-          writetimeout: 5000
-
   graphql:
     graphiql:
       enabled: ${GRAPHIQL_ENABLED:false}
@@ -86,6 +71,13 @@ server:
 
 app:
   base-url: ${APP_BASE_URL:}
+  mail:
+    enabled: ${MAIL_ENABLED:true}
+    provider: ${MAIL_PROVIDER:resend}
+    from: ${MAIL_FROM:}
+    resend:
+      api-key: ${RESEND_API_KEY:}
+      base-url: ${RESEND_BASE_URL:https://api.resend.com}
   password-reset:
     expiry-minutes: ${PASSWORD_RESET_EXPIRY_MINUTES:60}
 
