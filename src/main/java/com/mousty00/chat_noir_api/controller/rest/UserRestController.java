@@ -2,8 +2,10 @@ package com.mousty00.chat_noir_api.controller.rest;
 
 import com.mousty00.chat_noir_api.dto.api.ApiResponse;
 import com.mousty00.chat_noir_api.dto.api.PaginatedResponse;
+import com.mousty00.chat_noir_api.dto.auth.ChangePasswordRequest;
 import com.mousty00.chat_noir_api.dto.user.UserDTO;
 import com.mousty00.chat_noir_api.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +37,21 @@ public class UserRestController {
     @DeleteMapping("/users/{id}")
     public ApiResponse<?> deleteUser(@PathVariable UUID id) {
         return service.deleteUser(id);
+    }
+
+    @GetMapping("/users/me")
+    public ApiResponse<UserDTO> getCurrentUser() {
+        return service.getCurrentUser();
+    }
+
+    @DeleteMapping("/users/me")
+    public ApiResponse<?> deleteCurrentUser() {
+        return service.deleteCurrentUser();
+    }
+
+    @PostMapping("/users/me/change-password")
+    public ApiResponse<String> changePassword(@RequestBody @Valid ChangePasswordRequest request) {
+        return service.changePassword(request);
     }
 
     @PostMapping(value = "/users/{id}/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

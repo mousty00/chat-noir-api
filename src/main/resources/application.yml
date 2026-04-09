@@ -46,6 +46,18 @@ spring:
         order_updates: true
         generate_statistics: false
 
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
   graphql:
     graphiql:
       enabled: ${GRAPHIQL_ENABLED:false}
@@ -71,6 +83,8 @@ server:
 
 app:
   base-url: ${APP_BASE_URL:}
+  password-reset:
+    expiry-minutes: ${PASSWORD_RESET_EXPIRY_MINUTES:60}
 
 frontend:
   domain: ${FRONTEND_DOMAIN:localhost:3000}

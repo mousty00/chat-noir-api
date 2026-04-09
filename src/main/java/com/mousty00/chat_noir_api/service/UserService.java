@@ -2,6 +2,7 @@ package com.mousty00.chat_noir_api.service;
 
 import com.mousty00.chat_noir_api.dto.api.ApiResponse;
 import com.mousty00.chat_noir_api.dto.api.PaginatedResponse;
+import com.mousty00.chat_noir_api.dto.auth.ChangePasswordRequest;
 import com.mousty00.chat_noir_api.dto.user.UserDTO;
 import com.mousty00.chat_noir_api.entity.User;
 import com.mousty00.chat_noir_api.exception.AuthenticationException;
@@ -21,6 +22,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,15 +38,18 @@ public class UserService extends GenericService<User, UserDTO, UserRepository, U
     private final Logger log = LoggerFactory.getLogger(UserService.class);
     private final MediaService mediaService;
     private final S3Service s3Service;
+    private final PasswordEncoder passwordEncoder;
 
     public UserService(UserMapper mapper,
                        UserRepository repo,
                        MediaService mediaService,
-                       S3Service s3Service
+                       S3Service s3Service,
+                       PasswordEncoder passwordEncoder
     ) {
         super(repo, mapper);
         this.mediaService = mediaService;
         this.s3Service = s3Service;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public ApiResponse<PaginatedResponse<UserDTO>> getUsers(Integer page, Integer size, String username) {
@@ -72,6 +77,51 @@ public class UserService extends GenericService<User, UserDTO, UserRepository, U
             log.error("Error deleting user with id: {}", id, e);
             throw UserException.userDeleteError(e);
         }
+    }
+
+    @Transactional
+    public ApiResponse<?> deleteCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = Objects.requireNonNull(auth).getName();
+        User user = repo.findByUsername(username).orElseThrow(UserException::userNotFound);
+        try {
+            repo.delete(user);
+            log.info("User '{}' deleted their own account", username);
+            return ApiResponse.<Void>builder()
+                    .status(HttpStatus.OK.value())
+                    .message("Account deleted successfully")
+                    .success(true)
+                    .error(false)
+                    .data(null)
+                    .build();
+        } catch (Exception e) {
+            log.error("Error deleting account for user '{}': {}", username, e.getMessage(), e);
+            throw UserException.userDeleteError(e);
+        }
+    }
+
+    public ApiResponse<UserDTO> getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = Objects.requireNonNull(auth).getName();
+        User user = repo.findByUsername(username).orElseThrow(UserException::userNotFound);
+        return ApiResponse.success(HttpStatus.OK.value(), "User retrieved successfully", mapper.toDTO(user));
+    }
+
+    @Transactional
+    public ApiResponse<String> changePassword(ChangePasswordRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = Objects.requireNonNull(auth).getName();
+        User user = repo.findByUsername(username).orElseThrow(UserException::userNotFound);
+
+        if (user.getPassword() == null || user.getPassword().isBlank()
+                || !passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+            return ApiResponse.error(HttpStatus.UNAUTHORIZED.value(), "Current password is incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        repo.save(user);
+        log.info("Password changed for user '{}'", username);
+        return ApiResponse.success(HttpStatus.OK.value(), "Password changed successfully", "");
     }
 
     @Transactional

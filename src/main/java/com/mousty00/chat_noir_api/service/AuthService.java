@@ -1,9 +1,11 @@
 package com.mousty00.chat_noir_api.service;
 
 import com.mousty00.chat_noir_api.dto.api.ApiResponse;
+import com.mousty00.chat_noir_api.dto.auth.ForgotPasswordRequest;
 import com.mousty00.chat_noir_api.dto.auth.LoginRequest;
 import com.mousty00.chat_noir_api.dto.auth.LoginResponse;
 import com.mousty00.chat_noir_api.dto.auth.RegisterRequest;
+import com.mousty00.chat_noir_api.dto.auth.ResetPasswordRequest;
 import com.mousty00.chat_noir_api.entity.User;
 import com.mousty00.chat_noir_api.entity.UserRole;
 import com.mousty00.chat_noir_api.exception.AuthenticationException;
@@ -13,6 +15,7 @@ import com.mousty00.chat_noir_api.repository.UserRepository;
 import com.mousty00.chat_noir_api.repository.UserRoleRepository;
 import com.mousty00.chat_noir_api.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -24,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +37,10 @@ public class AuthService {
     private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final EmailService emailService;
+
+    @Value("${app.password-reset.expiry-minutes:60}")
+    private long passwordResetExpiryMinutes;
 
     @Transactional
     public ApiResponse<LoginResponse> login(LoginRequest request) {
@@ -117,6 +125,37 @@ public class AuthService {
                 .build();
 
         return userRepository.save(newUser);
+    }
+
+    @Transactional
+    public ApiResponse<String> forgotPassword(ForgotPasswordRequest request) {
+        String normalizedEmail = request.email().toLowerCase(Locale.ROOT);
+        userRepository.findByEmail(normalizedEmail).ifPresent(user -> {
+            String token = UUID.randomUUID().toString();
+            user.setPasswordResetToken(token);
+            user.setPasswordResetTokenExpiry(Instant.now().plusSeconds(passwordResetExpiryMinutes * 60));
+            userRepository.save(user);
+            emailService.sendPasswordResetEmail(user.getEmail(), token);
+        });
+        return ApiResponse.success(HttpStatus.OK.value(),
+                "If an account with that email exists, a reset link has been sent.", "");
+    }
+
+    @Transactional
+    public ApiResponse<String> resetPassword(ResetPasswordRequest request) {
+        User user = userRepository.findByPasswordResetToken(request.token())
+                .orElseThrow(() -> new AuthenticationException("Invalid or expired reset token", "AUTH_003", HttpStatus.BAD_REQUEST));
+
+        if (user.getPasswordResetTokenExpiry() == null || Instant.now().isAfter(user.getPasswordResetTokenExpiry())) {
+            throw new AuthenticationException("Reset token has expired", "AUTH_004", HttpStatus.BAD_REQUEST);
+        }
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        user.setPasswordResetToken(null);
+        user.setPasswordResetTokenExpiry(null);
+        userRepository.save(user);
+
+        return ApiResponse.success(HttpStatus.OK.value(), "Password reset successfully", "");
     }
 
     @Transactional

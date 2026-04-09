@@ -64,4 +64,10 @@ public class User {
     @Column(name = "google_id")
     private String googleId;
 
+    @Column(name = "password_reset_token")
+    private String passwordResetToken;
+
+    @Column(name = "password_reset_token_expiry")
+    private Instant passwordResetTokenExpiry;
+
 }

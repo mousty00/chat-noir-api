@@ -8,6 +8,10 @@ public class AuthenticationException extends ApiException {
         super(message, errorCode, HttpStatus.UNAUTHORIZED);
     }
 
+    public AuthenticationException(String message, String errorCode, HttpStatus status) {
+        super(message, errorCode, status);
+    }
+
     public static AuthenticationException badCredentials() {
         return new AuthenticationException("Invalid username or password", "AUTH_001");
     }
