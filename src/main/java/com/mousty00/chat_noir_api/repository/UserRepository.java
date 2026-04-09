@@ -18,6 +18,8 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
 
     Optional<User> findByGoogleId(String googleId);
 
+    Optional<User> findByEmailVerificationToken(String token);
+
     Optional<User> findByPasswordResetToken(String token);
 
     boolean existsByUsername(String username);

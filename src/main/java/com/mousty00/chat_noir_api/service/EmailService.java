@@ -42,36 +42,57 @@ public class EmailService {
     @Value("${app.password-reset.expiry-minutes:60}")
     private long expiryMinutes;
 
+    @Value("${app.email-verification.expiry-minutes:1440}")
+    private long verificationExpiryMinutes;
+
+    public boolean sendWelcomeEmail(String to, String username) {
+        Context ctx = new Context();
+        ctx.setVariable("username", username);
+        ctx.setVariable("homeUrl", buildFrontendBaseUrl());
+
+        String html = templateEngine.process("email/welcome", ctx);
+        return sendEmail(to, "Welcome to Chat Noir", html);
+    }
+
+    public boolean sendVerificationEmail(String to, String username, String token) {
+        Context ctx = new Context();
+        ctx.setVariable("username", username);
+        ctx.setVariable("verificationLink", buildFrontendBaseUrl() + "/verify-email?token=" + token);
+        ctx.setVariable("expiryMinutes", verificationExpiryMinutes);
+
+        String html = templateEngine.process("email/verify-email", ctx);
+        return sendEmail(to, "Verify your Chat Noir account", html);
+    }
+
     public boolean sendPasswordResetEmail(String to, String token) {
+        Context ctx = new Context();
+        ctx.setVariable("resetLink", buildFrontendBaseUrl() + "/reset-password?token=" + token);
+        ctx.setVariable("expiryMinutes", expiryMinutes);
+
+        String html = templateEngine.process("email/password-reset", ctx);
+        return sendEmail(to, "Reset your Chat Noir password", html);
+    }
+
+    private boolean sendEmail(String to, String subject, String html) {
         if (!mailEnabled) {
-            log.info("Skipping password reset email because mail delivery is disabled");
+            log.info("Skipping email delivery because mail delivery is disabled");
             return false;
         }
 
         if (from == null || from.isBlank()) {
-            log.warn("Skipping password reset email because app.mail.from is not configured");
+            log.warn("Skipping email delivery because app.mail.from is not configured");
             return false;
         }
 
         if (!"resend".equalsIgnoreCase(provider)) {
-            log.warn("Skipping password reset email because mail provider '{}' is not supported", provider);
+            log.warn("Skipping email delivery because mail provider '{}' is not supported", provider);
             return false;
         }
 
         if (resendApiKey == null || resendApiKey.isBlank()) {
-            log.warn("Skipping password reset email because app.mail.resend.api-key is not configured");
+            log.warn("Skipping email delivery because app.mail.resend.api-key is not configured");
             return false;
         }
-
-        boolean hasPort = feDomain.contains(":");
-        String baseUrl = hasPort ? "http://" + feDomain : "https://" + feDomain;
-        String resetLink = baseUrl + "/reset-password?token=" + token;
-
-        Context ctx = new Context();
-        ctx.setVariable("resetLink", resetLink);
-        ctx.setVariable("expiryMinutes", expiryMinutes);
-
-        String html = templateEngine.process("email/password-reset", ctx);
 
         try {
             RestClient restClient = restClientBuilder
@@ -83,7 +104,7 @@ public class EmailService {
             Map<String, Object> payload = Map.of(
                     "from", "Chat Noir <" + from + ">",
                     "to", List.of(to),
-                    "subject", "Reset your Chat Noir password",
+                    "subject", subject,
                     "html", html
             );
 
@@ -94,12 +115,17 @@ public class EmailService {
                     .retrieve()
                     .body(ResendSendEmailResponse.class);
 
-            log.info("Password reset email sent to {} via Resend with id {}", to, response != null ? response.id() : "unknown");
+            log.info("Email sent to {} via Resend with id {}", to, response != null ? response.id() : "unknown");
             return true;
         } catch (RestClientException e) {
-            log.warn("Password reset email could not be delivered to {} via Resend: {}", to, e.getMessage());
+            log.warn("Email could not be delivered to {} via Resend: {}", to, e.getMessage());
             return false;
         }
+    }
+
+    private String buildFrontendBaseUrl() {
+        boolean hasPort = feDomain.contains(":");
+        return hasPort ? "http://" + feDomain : "https://" + feDomain;
     }
 
     private record ResendSendEmailResponse(String id) {

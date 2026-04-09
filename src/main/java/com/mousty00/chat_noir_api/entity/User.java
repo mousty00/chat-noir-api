@@ -64,6 +64,15 @@ public class User {
     @Column(name = "google_id")
     private String googleId;
 
+    @Column(name = "email_verified", nullable = false)
+    private boolean emailVerified = false;
+
+    @Column(name = "email_verification_token")
+    private String emailVerificationToken;
+
+    @Column(name = "email_verification_token_expiry")
+    private Instant emailVerificationTokenExpiry;
+
     @Column(name = "password_reset_token")
     private String passwordResetToken;
 

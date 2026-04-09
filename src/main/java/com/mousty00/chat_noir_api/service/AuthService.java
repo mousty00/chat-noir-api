@@ -42,6 +42,9 @@ public class AuthService {
     @Value("${app.password-reset.expiry-minutes:60}")
     private long passwordResetExpiryMinutes;
 
+    @Value("${app.email-verification.expiry-minutes:1440}")
+    private long emailVerificationExpiryMinutes;
+
     @Transactional
     public ApiResponse<LoginResponse> login(LoginRequest request) {
         User user = userRepository.findByUsernameWithRole(request.username())
@@ -53,6 +56,10 @@ public class AuthService {
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             throw AuthenticationException.badCredentials();
+        }
+
+        if (!user.isEmailVerified()) {
+            throw AuthenticationException.emailNotVerified();
         }
 
         return ApiResponse.success(HttpStatus.OK.value(), "Login successful", buildLoginResponse(user));
@@ -78,12 +85,16 @@ public class AuthService {
                 .email(normalizedEmail)
                 .password(passwordEncoder.encode(request.password()))
                 .isAdmin(false)
+                .emailVerified(false)
+                .emailVerificationToken(UUID.randomUUID().toString())
+                .emailVerificationTokenExpiry(Instant.now().plusSeconds(emailVerificationExpiryMinutes * 60))
                 .createdAt(Instant.now())
                 .role(defaultRole)
                 .build();
 
         userRepository.save(user);
-        return ApiResponse.success(HttpStatus.CREATED.value(), "User registered successfully", "");
+        emailService.sendVerificationEmail(user.getEmail(), user.getUsername(), user.getEmailVerificationToken());
+        return ApiResponse.success(HttpStatus.CREATED.value(), "User registered successfully. Please verify your email.", "");
     }
 
     @Transactional
@@ -120,6 +131,7 @@ public class AuthService {
                 .password("")
                 .googleId(googleId)
                 .isAdmin(false)
+                .emailVerified(true)
                 .createdAt(Instant.now())
                 .role(defaultRole)
                 .build();
@@ -144,6 +156,52 @@ public class AuthService {
         });
         return ApiResponse.success(HttpStatus.OK.value(),
                 "If an account with that email exists, a reset link has been sent.", "");
+    }
+
+    @Transactional
+    public ApiResponse<String> verifyEmail(String token) {
+        User user = userRepository.findByEmailVerificationToken(token)
+                .orElseThrow(() -> new AuthenticationException("Invalid or expired verification token", "AUTH_006", HttpStatus.BAD_REQUEST));
+
+        if (user.getEmailVerificationTokenExpiry() == null || Instant.now().isAfter(user.getEmailVerificationTokenExpiry())) {
+            throw new AuthenticationException("Verification token has expired", "AUTH_007", HttpStatus.BAD_REQUEST);
+        }
+
+        boolean firstVerification = !user.isEmailVerified();
+        user.setEmailVerified(true);
+        user.setEmailVerificationToken(null);
+        user.setEmailVerificationTokenExpiry(null);
+        userRepository.save(user);
+
+        if (firstVerification) {
+            emailService.sendWelcomeEmail(user.getEmail(), user.getUsername());
+        }
+
+        return ApiResponse.success(HttpStatus.OK.value(), "Email verified successfully", "");
+    }
+
+    @Transactional
+    public ApiResponse<String> resendVerificationEmail(ForgotPasswordRequest request) {
+        String normalizedEmail = request.email().toLowerCase(Locale.ROOT);
+        userRepository.findByEmail(normalizedEmail).ifPresent(user -> {
+            if (user.isEmailVerified() || user.getGoogleId() != null) {
+                return;
+            }
+
+            String token = UUID.randomUUID().toString();
+            Instant expiry = Instant.now().plusSeconds(emailVerificationExpiryMinutes * 60);
+
+            if (!emailService.sendVerificationEmail(user.getEmail(), user.getUsername(), token)) {
+                return;
+            }
+
+            user.setEmailVerificationToken(token);
+            user.setEmailVerificationTokenExpiry(expiry);
+            userRepository.save(user);
+        });
+
+        return ApiResponse.success(HttpStatus.OK.value(),
+                "If an account with that email exists and is not verified, a verification link has been sent.", "");
     }
 
     @Transactional

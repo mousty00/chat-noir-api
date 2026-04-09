@@ -1,6 +1,7 @@
 package com.mousty00.chat_noir_api.controller.graphql;
 
 import com.mousty00.chat_noir_api.dto.api.ApiResponse;
+import com.mousty00.chat_noir_api.dto.auth.ForgotPasswordRequest;
 import com.mousty00.chat_noir_api.dto.auth.LoginRequest;
 import com.mousty00.chat_noir_api.dto.auth.LoginResponse;
 import com.mousty00.chat_noir_api.dto.auth.RegisterRequest;
@@ -39,6 +40,30 @@ public class AuthController {
             return ApiResponse.error(e.getStatus().value(), e.getMessage());
         } catch (Exception e) {
             log.error("Unexpected error during register", e);
+            return ApiResponse.internalError("An unexpected error occurred");
+        }
+    }
+
+    @MutationMapping
+    public ApiResponse<String> verifyEmail(@Argument String token) {
+        try {
+            return authService.verifyEmail(token);
+        } catch (ApiException e) {
+            return ApiResponse.error(e.getStatus().value(), e.getMessage());
+        } catch (Exception e) {
+            log.error("Unexpected error during email verification", e);
+            return ApiResponse.internalError("An unexpected error occurred");
+        }
+    }
+
+    @MutationMapping
+    public ApiResponse<String> resendVerificationEmail(@Argument ForgotPasswordRequest request) {
+        try {
+            return authService.resendVerificationEmail(request);
+        } catch (ApiException e) {
+            return ApiResponse.error(e.getStatus().value(), e.getMessage());
+        } catch (Exception e) {
+            log.error("Unexpected error during resend verification", e);
             return ApiResponse.internalError("An unexpected error occurred");
         }
     }

@@ -19,4 +19,8 @@ public class AuthenticationException extends ApiException {
     public static AuthenticationException accessDenied() {
         return new AuthenticationException("You don't have permission to access this resource", "AUTH_002");
     }
+
+    public static AuthenticationException emailNotVerified() {
+        return new AuthenticationException("Please verify your email address before logging in", "AUTH_005", HttpStatus.FORBIDDEN);
+    }
 }

@@ -1,6 +1,8 @@
 extend type Mutation {
     login(request: LoginRequest!): ApiResponseLogin
     register(request: RegisterRequest!): ApiResponseRegister
+    verifyEmail(token: String!): ApiResponseString
+    resendVerificationEmail(request: ForgotPasswordRequest!): ApiResponseString
 }
 
 input LoginRequest {
@@ -12,6 +14,10 @@ input RegisterRequest {
     username: String!
     email: String!
     password: String!
+}
+
+input ForgotPasswordRequest {
+    email: String!
 }
 
 type LoginResponse {
@@ -37,4 +43,3 @@ type ApiResponseLogin implements ApiResponse {
     success: Boolean!
     data: LoginResponse
 }
-
