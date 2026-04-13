@@ -11,6 +11,8 @@ import com.mousty00.chat_noir_api.service.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +25,7 @@ import java.io.IOException;
 public class AuthRestController {
 
     private final AuthService service;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Value("${frontend.domain:localhost:3000}")
     private String feDomain;
@@ -46,6 +49,7 @@ public class AuthRestController {
             service.verifyEmail(token);
             response.sendRedirect(buildVerificationRedirectUrl(true, "Email verified successfully"));
         } catch (ApiException ex) {
+            logger.error("Failed to verify email", ex);
             response.sendRedirect(buildVerificationRedirectUrl(false, ex.getMessage()));
         }
     }

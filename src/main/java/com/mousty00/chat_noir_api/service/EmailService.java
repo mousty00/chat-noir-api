@@ -39,6 +39,9 @@ public class EmailService {
     @Value("${frontend.domain:localhost:3000}")
     private String feDomain;
 
+    @Value("${app.base-url:http://localhost:8080/api}")
+    private String backendBaseUrl;
+
     @Value("${app.password-reset.expiry-minutes:60}")
     private long expiryMinutes;
 
@@ -57,7 +60,7 @@ public class EmailService {
     public boolean sendVerificationEmail(String to, String username, String token) {
         Context ctx = new Context();
         ctx.setVariable("username", username);
-        ctx.setVariable("verificationLink", buildFrontendBaseUrl() + "/verify-email?token=" + token);
+        ctx.setVariable("verificationLink", backendBaseUrl + "/auth/verify-email?token=" + token);
         ctx.setVariable("expiryMinutes", verificationExpiryMinutes);
 
         String html = templateEngine.process("email/verify-email", ctx);
