@@ -37,7 +37,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -252,6 +251,7 @@ public class CatSubmissionService {
                 .color(s.getColor())
                 .category(catCategoryMapper.toDTO(s.getCategory()))
                 .sourceName(s.getSourceName())
+                .image(s3Service.generatePresignedUrl(s.getMediaKey()))
                 .notes(s.getNotes())
                 .status(s.getStatus())
                 .createdAt(s.getCreatedAt())

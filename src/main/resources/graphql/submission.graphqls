@@ -25,6 +25,7 @@ type CatSubmission {
     category: Category
     sourceName: String
     notes: String
+    image: String
     status: SubmissionStatus!
     createdAt: String
     reviewedAt: String

@@ -15,6 +15,7 @@ public record CatSubmissionDTO(
         CatCategoryDTO category,
         String sourceName,
         String notes,
+        String image,
         SubmissionStatus status,
         LocalDateTime createdAt,
         LocalDateTime reviewedAt,
