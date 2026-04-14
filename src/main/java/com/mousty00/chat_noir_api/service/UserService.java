@@ -125,6 +125,25 @@ public class UserService extends GenericService<User, UserDTO, UserRepository, U
     }
 
     @Transactional
+    public ApiResponse<String> changeUsername(UUID userid, String username) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String currentUsername = Objects.requireNonNull(auth).getName();
+            User user = repo.findByUsername(username).orElseThrow(UserException::userNotFound);
+            if (user.getUsername().equals(currentUsername)) {
+                return ApiResponse.error(HttpStatus.UNAUTHORIZED.value(), "Current username is incorrect");
+            }
+            user.setUsername(username);
+            repo.save(user);
+            log.info("Username changed for user '{}'", username);
+            return ApiResponse.success(HttpStatus.OK.value(), "Username changed successfully", "");
+        } catch (Exception e) {
+            log.error("Error changing username for user '{}': {}", username, e.getMessage(), e);
+            return ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error changing username");
+        }
+    }
+
+    @Transactional
     public ApiResponse<?> saveUser(UserDTO user) {
         try {
             return saveItem(user);

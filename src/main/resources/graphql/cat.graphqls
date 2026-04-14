@@ -10,6 +10,9 @@ extend type Mutation {
     createCat(cat: CatRequest!): ApiResponseCat
     updateCat(id: ID!, cat: CatRequest!): ApiResponseCat
     deleteCatMedia(id: ID!): ApiResponseString
+    createCategory(category: CreateCategoryRequest!): ApiResponseCategory
+    updateCategory(id: ID!, category: CreateCategoryRequest!): ApiResponseCategory
+    deleteCategory(id: ID!): ApiResponseCategory
 }
 
 input CatRequest {
@@ -36,6 +39,11 @@ input CategoryRequest {
     mediaTypeHint: String!
 }
 
+input CreateCategoryRequest {
+    name: String!
+    mediaTypeHint: String
+}
+
 type Category {
     id: ID!
     name: String!
@@ -56,6 +64,14 @@ type ApiResponseString implements ApiResponse {
     message: String
     success: Boolean!
     data: String
+}
+
+type ApiResponseCategory implements ApiResponse {
+    status: Int!
+    error: Boolean!
+    message: String
+    success: Boolean!
+    data: Category
 }
 
 type ApiResponseCategories implements ApiResponse {

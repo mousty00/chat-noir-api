@@ -6,6 +6,7 @@ import com.mousty00.chat_noir_api.dto.auth.ChangePasswordRequest;
 import com.mousty00.chat_noir_api.dto.user.UserDTO;
 import com.mousty00.chat_noir_api.service.UserService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserRestController {
 
@@ -29,32 +30,37 @@ public class UserRestController {
         return service.getUsers(page, size, username);
     }
 
-    @GetMapping("/users/{id}")
+    @GetMapping("/{id}")
     public ApiResponse<UserDTO> getUserById(@PathVariable UUID id) {
         return service.getUserById(id);
     }
 
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("/{id}")
     public ApiResponse<?> deleteUser(@PathVariable UUID id) {
         return service.deleteUser(id);
     }
 
-    @GetMapping("/users/me")
+    @GetMapping("/me")
     public ApiResponse<UserDTO> getCurrentUser() {
         return service.getCurrentUser();
     }
 
-    @DeleteMapping("/users/me")
+    @PatchMapping("/{id}/username")
+    public ApiResponse<String> changeUsername(@PathVariable UUID id, @Valid @NotNull String newUsername) {
+        return service.changeUsername(id,newUsername);
+    }
+
+    @DeleteMapping("/me")
     public ApiResponse<?> deleteCurrentUser() {
         return service.deleteCurrentUser();
     }
 
-    @PostMapping("/users/me/change-password")
+    @PostMapping("/me/change-password")
     public ApiResponse<String> changePassword(@RequestBody @Valid ChangePasswordRequest request) {
         return service.changePassword(request);
     }
 
-    @PostMapping(value = "/users/{id}/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{id}/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<String> uploadProfileImage(@PathVariable UUID id, @RequestParam MultipartFile imageFile) {
         return service.uploadProfileImage(imageFile, id);
     }
