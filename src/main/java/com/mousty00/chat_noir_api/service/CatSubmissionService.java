@@ -84,7 +84,7 @@ public class CatSubmissionService {
         }
     }
 
-    public ApiResponse<String> uploadSubmissionMedia(UUID submissionId, MultipartFile file) {
+    public ApiResponse<CatSubmissionDTO> uploadSubmissionMedia(UUID submissionId, MultipartFile file) {
         mediaService.validateImageFile(file);
 
         CatSubmission submission = getOrThrow(submissionId);
@@ -111,17 +111,10 @@ public class CatSubmissionService {
             try { s3Service.deleteFile(oldMediaKey); } catch (Exception ignored) {}
         }
 
-        persistSubmissionMediaKey(submissionId, mediaKey);
-
-        return ApiResponse.success(HttpStatus.OK.value(), "Media uploaded successfully",
-                s3Service.generatePresignedUrl(mediaKey));
-    }
-
-    @Transactional
-    protected void persistSubmissionMediaKey(UUID submissionId, String mediaKey) {
-        CatSubmission submission = getOrThrow(submissionId);
         submission.setMediaKey(mediaKey);
         submissionRepository.save(submission);
+
+        return ApiResponse.success(HttpStatus.OK.value(), "Media uploaded successfully", toDTO(submission));
     }
 
     @Transactional
@@ -251,7 +244,7 @@ public class CatSubmissionService {
                 .color(s.getColor())
                 .category(catCategoryMapper.toDTO(s.getCategory()))
                 .sourceName(s.getSourceName())
-                .image(s3Service.generatePresignedUrl(s.getMediaKey()))
+                .image(s.getMediaKey() != null ? s3Service.generatePresignedUrl(s.getMediaKey()) : null)
                 .notes(s.getNotes())
                 .status(s.getStatus())
                 .createdAt(s.getCreatedAt())

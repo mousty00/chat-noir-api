@@ -1,6 +1,7 @@
 package com.mousty00.chat_noir_api.controller.rest;
 
 import com.mousty00.chat_noir_api.dto.api.ApiResponse;
+import com.mousty00.chat_noir_api.dto.cat.CatSubmissionDTO;
 import com.mousty00.chat_noir_api.service.CatSubmissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -19,7 +20,7 @@ public class CatSubmissionRestController {
     private final CatSubmissionService service;
 
     @PostMapping(value = "/{id}/media", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<String> uploadMedia(
+    public ApiResponse<CatSubmissionDTO> uploadMedia(
             @PathVariable UUID id,
             @RequestParam MultipartFile mediaFile
     ) {
