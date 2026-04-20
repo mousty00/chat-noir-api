@@ -1,7 +1,6 @@
 package com.mousty00.chat_noir_api.service;
 
 import com.mousty00.chat_noir_api.dto.api.ApiResponse;
-import com.mousty00.chat_noir_api.service.S3Service;
 import com.mousty00.chat_noir_api.dto.auth.ForgotPasswordRequest;
 import com.mousty00.chat_noir_api.dto.auth.LoginRequest;
 import com.mousty00.chat_noir_api.dto.auth.LoginResponse;
@@ -39,7 +38,6 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final EmailService emailService;
-    private final S3Service s3Service;
 
     @Value("${app.password-reset.expiry-minutes:60}")
     private long passwordResetExpiryMinutes;
@@ -242,25 +240,15 @@ public class AuthService {
                 user.getUsername(),
                 user.getEmail(),
                 List.copyOf(roles),
-                user.isAdmin(),
-                user.getId()
+                user.isAdmin()
         );
-
-        String image = null;
-        if (user.getImageKey() != null) {
-            try {
-                image = s3Service.generatePresignedUrl(user.getImageKey());
-            } catch (Exception ignored) {}
-        }
 
         return LoginResponse.builder()
                 .token(token)
-                .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .isAdmin(user.isAdmin())
                 .roles(List.copyOf(roles))
-                .image(image)
                 .build();
     }
 
