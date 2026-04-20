@@ -30,7 +30,7 @@ public class JwtUtil {
         }
     }
 
-    public String generateToken(String username, String email, List<String> roles, boolean isAdmin) {
+    public String generateToken(String username, String email, List<String> roles, boolean isAdmin, java.util.UUID userId) {
         List<String> springRoles = roles.stream()
                 .map(role -> {
                     if (role.startsWith("ROLE_")) {
@@ -47,6 +47,7 @@ public class JwtUtil {
 
         return JWT.create()
                 .withSubject(username)
+                .withClaim("userId", userId != null ? userId.toString() : null)
                 .withClaim("username", username)
                 .withClaim("email", email)
                 .withClaim("roles", springRoles)

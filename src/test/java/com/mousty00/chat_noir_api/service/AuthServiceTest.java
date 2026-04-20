@@ -9,6 +9,7 @@ import com.mousty00.chat_noir_api.entity.UserRole;
 import com.mousty00.chat_noir_api.exception.AuthenticationException;
 import com.mousty00.chat_noir_api.exception.UserException;
 import com.mousty00.chat_noir_api.jwt.JwtUtil;
+import com.mousty00.chat_noir_api.service.S3Service;
 import com.mousty00.chat_noir_api.repository.UserRepository;
 import com.mousty00.chat_noir_api.repository.UserRoleRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,6 +42,7 @@ class AuthServiceTest {
     @Mock UserRoleRepository userRoleRepository;
     @Mock PasswordEncoder passwordEncoder;
     @Mock JwtUtil jwtUtil;
+    @Mock S3Service s3Service;
 
     @InjectMocks AuthService service;
 
@@ -75,7 +77,7 @@ class AuthServiceTest {
             LoginRequest request = new LoginRequest("testuser", "password123");
             when(userRepository.findByUsernameWithRole("testuser")).thenReturn(Optional.of(testUser));
             when(passwordEncoder.matches("password123", "encoded_password")).thenReturn(true);
-            when(jwtUtil.generateToken(eq("testuser"), eq("test@example.com"), any(), eq(false)))
+            when(jwtUtil.generateToken(eq("testuser"), eq("test@example.com"), any(), eq(false), any()))
                     .thenReturn("jwt-token");
 
             ApiResponse<LoginResponse> response = service.login(request);
@@ -138,7 +140,7 @@ class AuthServiceTest {
             LoginRequest request = new LoginRequest("admin", "password");
             when(userRepository.findByUsernameWithRole("admin")).thenReturn(Optional.of(adminUser));
             when(passwordEncoder.matches("password", "encoded")).thenReturn(true);
-            when(jwtUtil.generateToken(eq("admin"), eq("admin@example.com"), argThat(roles -> roles.contains("ADMIN")), eq(true)))
+            when(jwtUtil.generateToken(eq("admin"), eq("admin@example.com"), argThat(roles -> roles.contains("ADMIN")), eq(true), any()))
                     .thenReturn("admin-token");
 
             ApiResponse<LoginResponse> response = service.login(request);
@@ -224,7 +226,7 @@ class AuthServiceTest {
             when(oAuth2User.getAttribute("name")).thenReturn("Test User");
             when(oAuth2User.getAttribute("sub")).thenReturn("google-sub-123");
             when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
-            when(jwtUtil.generateToken(any(), any(), any(), anyBoolean())).thenReturn("oauth-token");
+            when(jwtUtil.generateToken(any(), any(), any(), anyBoolean(), any())).thenReturn("oauth-token");
 
             LoginResponse response = service.loginOrRegisterOAuth2User(oAuth2User);
 
@@ -244,7 +246,7 @@ class AuthServiceTest {
             when(userRoleRepository.findByName("USER")).thenReturn(Optional.of(defaultRole));
             when(userRepository.existsByUsername(any())).thenReturn(false);
             when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-            when(jwtUtil.generateToken(any(), any(), any(), anyBoolean())).thenReturn("new-oauth-token");
+            when(jwtUtil.generateToken(any(), any(), any(), anyBoolean(), any())).thenReturn("new-oauth-token");
 
             LoginResponse response = service.loginOrRegisterOAuth2User(oAuth2User);
 

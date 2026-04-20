@@ -22,10 +22,12 @@ input ForgotPasswordRequest {
 
 type LoginResponse {
     token: String!
+    id: ID!
     username: String!
     email: String!
     isAdmin: Boolean!
     roles: [String!]!
+    image: String
 }
 
 type ApiResponseRegister implements ApiResponse {
