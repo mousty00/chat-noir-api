@@ -4,6 +4,8 @@ import com.mousty00.chat_noir_api.dto.api.ApiResponse;
 import com.mousty00.chat_noir_api.dto.api.PaginatedResponse;
 import com.mousty00.chat_noir_api.dto.auth.ChangePasswordRequest;
 import com.mousty00.chat_noir_api.dto.user.UserDTO;
+import com.mousty00.chat_noir_api.dto.user.UserPublicDTO;
+import com.mousty00.chat_noir_api.service.FriendshipService;
 import com.mousty00.chat_noir_api.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -20,6 +22,7 @@ import java.util.UUID;
 public class UserRestController {
 
     private final UserService service;
+    private final FriendshipService friendshipService;
 
     @GetMapping("/users")
     public ApiResponse<PaginatedResponse<UserDTO>> getUsers(
@@ -63,6 +66,15 @@ public class UserRestController {
     @PostMapping(value = "/me/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<String> uploadProfileImage(@RequestParam MultipartFile imageFile) {
         return service.uploadProfileImage(imageFile);
+    }
+
+    @GetMapping("/explore")
+    public ApiResponse<PaginatedResponse<UserPublicDTO>> exploreUsers(
+            String username,
+            Integer page,
+            Integer size
+    ) {
+        return friendshipService.exploreUsers(username, page, size);
     }
 
 }

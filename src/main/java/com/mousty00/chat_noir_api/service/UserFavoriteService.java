@@ -94,6 +94,48 @@ public class UserFavoriteService {
     }
 
     @Transactional
+    public ApiResponse<PaginatedResponse<UserFavoriteDTO>> getUserFavoritesForUser(UUID userId, Pageable pageable) {
+        Page<UserFavorite> favoritesPage = userFavoriteRepository.findByUserId(userId, pageable);
+
+        List<UUID> mediaIds = favoritesPage.getContent().stream()
+                .map(UserFavorite::getCatMediaId)
+                .toList();
+
+        List<CatMedia> mediaList = catMediaRepository.findAllById(mediaIds);
+        List<UUID> catIds = mediaList.stream()
+                .map(media -> media.getCat().getId())
+                .distinct()
+                .toList();
+        List<Cat> cats = catRepository.findAllById(catIds);
+
+        Map<UUID, Cat> catById = cats.stream()
+                .collect(Collectors.toMap(Cat::getId, cat -> cat));
+
+        Map<UUID, CatMedia> mediaById = mediaList.stream()
+                .collect(Collectors.toMap(CatMedia::getId, media -> media));
+
+        List<UserFavoriteDTO> dtoList = favoritesPage.getContent().stream()
+                .map(fav -> {
+                    CatMedia media = mediaById.get(fav.getCatMediaId());
+                    Cat cat = catById.get(media.getCat().getId());
+                    return toDTO(fav, media, cat);
+                })
+                .toList();
+
+        PaginatedResponse<UserFavoriteDTO> paginated = new PaginatedResponse<>(
+                dtoList,
+                favoritesPage.getNumber(),
+                favoritesPage.getTotalPages(),
+                favoritesPage.getTotalElements(),
+                favoritesPage.getSize(),
+                favoritesPage.hasNext(),
+                favoritesPage.hasPrevious()
+        );
+
+        return ApiResponse.success(HttpStatus.OK.value(), "Favorites retrieved successfully", paginated);
+    }
+
+    @Transactional
     public ApiResponse<UserFavoriteDTO> addFavorite(UUID catId) {
         UUID userId = resolveCurrentUserId();
         Cat cat = catRepository.findById(catId)
