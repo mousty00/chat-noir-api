@@ -1,0 +1,69 @@
+extend type Query {
+    myFriends: ApiResponseFriendshipList
+    pendingRequests: ApiResponseFriendshipList
+    exploreUsers(username: String, page: Int, size: Int): ApiResponsePaginatedUserPublic
+    friendFavorites(friendId: ID!, page: Int, size: Int): ApiResponsePaginatedFavorite
+}
+
+extend type Mutation {
+    sendFriendRequest(addresseeId: ID!): ApiResponseFriendship
+    respondFriendRequest(friendshipId: ID!, accept: Boolean!): ApiResponseFriendship
+    removeFriend(friendshipId: ID!): ApiResponseVoid
+}
+
+type Friendship {
+    id: ID!
+    friend: UserPublic!
+    status: String!
+    iAmRequester: Boolean!
+    createdAt: String
+}
+
+type UserPublic {
+    id: ID!
+    username: String!
+    image: String
+    friendStatus: String
+}
+
+type ApiResponseFriendship implements ApiResponse {
+    status: Int!
+    error: Boolean!
+    message: String
+    success: Boolean!
+    data: Friendship
+}
+
+type ApiResponseFriendshipList implements ApiResponse {
+    status: Int!
+    error: Boolean!
+    message: String
+    success: Boolean!
+    data: [Friendship!]
+}
+
+type PaginatedResponseUserPublic implements PaginatedResponse {
+    currentPage: Int!
+    totalPages: Int!
+    totalItems: Int!
+    pageSize: Int!
+    hasNext: Boolean!
+    hasPrevious: Boolean!
+    result: [UserPublic!]!
+}
+
+type ApiResponsePaginatedUserPublic implements ApiResponsePaginated {
+    status: Int!
+    error: Boolean!
+    message: String
+    success: Boolean!
+    data: PaginatedResponseUserPublic
+}
+
+type ApiResponseVoid implements ApiResponse {
+    status: Int!
+    error: Boolean!
+    message: String
+    success: Boolean!
+    data: String
+}
