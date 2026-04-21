@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -30,7 +31,7 @@ public class JwtUtil {
         }
     }
 
-    public String generateToken(String username, String email, List<String> roles, boolean isAdmin) {
+    public String generateToken(UUID userId, String username, String email, List<String> roles, boolean isAdmin) {
         List<String> springRoles = roles.stream()
                 .map(role -> {
                     if (role.startsWith("ROLE_")) {
@@ -47,6 +48,7 @@ public class JwtUtil {
 
         return JWT.create()
                 .withSubject(username)
+                .withClaim("userId", userId.toString())
                 .withClaim("username", username)
                 .withClaim("email", email)
                 .withClaim("roles", springRoles)

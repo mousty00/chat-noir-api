@@ -238,6 +238,7 @@ public class AuthService {
         if (user.isAdmin()) roles.add("ADMIN");
 
         String token = jwtUtil.generateToken(
+                user.getId(),
                 user.getUsername(),
                 user.getEmail(),
                 List.copyOf(roles),
