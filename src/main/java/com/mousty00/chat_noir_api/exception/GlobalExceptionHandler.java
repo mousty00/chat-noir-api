@@ -14,6 +14,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -171,11 +172,30 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiResponse<Map<String, Object>>> handleTypeMismatch(
+            MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
+
+        String requiredType = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown";
+        String msg = "Invalid value '%s' for parameter '%s': expected %s".formatted(
+                ex.getValue(), ex.getName(), requiredType);
+        log.warn("Type mismatch on {} {}: {}", request.getMethod(), request.getRequestURI(), msg);
+
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("path", request.getRequestURI());
+        errorDetails.put("parameter", ex.getName());
+        errorDetails.put("rejectedValue", String.valueOf(ex.getValue()));
+        errorDetails.put("expectedType", requiredType);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                ApiResponse.error(HttpStatus.BAD_REQUEST.value(), msg, errorDetails));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Map<String, Object>>> handleAllUncaughtException(
             Exception ex, HttpServletRequest request) {
 
-        log.error("Unhandled exception: {}", ex.getMessage(), ex);
+        log.error("Unhandled exception on {} {}: {}", request.getMethod(), request.getRequestURI(), ex.getMessage(), ex);
 
         Map<String, Object> errorDetails = new HashMap<>();
         errorDetails.put("path", request.getRequestURI());

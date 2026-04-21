@@ -65,6 +65,7 @@ public class UserService extends GenericService<User, UserDTO, UserRepository, U
         try {
             return getItemById(id, ResourceType.USER);
         } catch (Exception e) {
+            log.warn("User not found by id {}: {}", id, e.getMessage());
             throw UserException.userNotFoundById(id);
         }
     }
@@ -103,7 +104,10 @@ public class UserService extends GenericService<User, UserDTO, UserRepository, U
     public ApiResponse<UserDTO> getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = Objects.requireNonNull(auth).getName();
-        User user = repo.findByUsername(username).orElseThrow(UserException::userNotFound);
+        User user = repo.findByUsername(username).orElseThrow(() -> {
+            log.warn("getCurrentUser: authenticated user '{}' not found in DB", username);
+            return UserException.userNotFound();
+        });
         return ApiResponse.success(HttpStatus.OK.value(), "User retrieved successfully", mapper.toDTO(user));
     }
 
@@ -111,10 +115,14 @@ public class UserService extends GenericService<User, UserDTO, UserRepository, U
     public ApiResponse<String> changePassword(ChangePasswordRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = Objects.requireNonNull(auth).getName();
-        User user = repo.findByUsername(username).orElseThrow(UserException::userNotFound);
+        User user = repo.findByUsername(username).orElseThrow(() -> {
+            log.warn("changePassword: authenticated user '{}' not found in DB", username);
+            return UserException.userNotFound();
+        });
 
         if (user.getPassword() == null || user.getPassword().isBlank()
                 || !passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+            log.warn("changePassword: wrong current password for user '{}'", username);
             return ApiResponse.error(HttpStatus.UNAUTHORIZED.value(), "Current password is incorrect");
         }
 
@@ -185,10 +193,18 @@ public class UserService extends GenericService<User, UserDTO, UserRepository, U
             );
 
         } catch (IllegalArgumentException | NoSuchElementException e) {
-            log.warn("Profile image upload validation failed: {}", e.getMessage());
+            log.warn("uploadProfileImage: validation failed for user {}: {}", userId, e.getMessage());
             return ApiResponse.badRequest(e.getMessage());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("uploadProfileImage: S3 upload interrupted for user {}", userId, e);
+            return ApiResponse.internalError("Upload interrupted, please try again");
         } catch (Exception e) {
-            log.error("Profile image upload failed for user {}: {}", userId, e.getMessage(), e);
+            log.error("uploadProfileImage: unexpected failure for user {} (file={}, size={}): {}",
+                    userId,
+                    imageFile.getOriginalFilename(),
+                    imageFile.getSize(),
+                    e.getMessage(), e);
             return ApiResponse.internalError("Failed to upload profile image");
         }
     }
