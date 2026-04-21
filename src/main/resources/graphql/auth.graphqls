@@ -21,9 +21,11 @@ input ForgotPasswordRequest {
 }
 
 type LoginResponse {
+    id: ID!
     token: String!
     username: String!
     email: String!
+    image: String
     isAdmin: Boolean!
     roles: [String!]!
 }

@@ -38,6 +38,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final EmailService emailService;
+    private final S3Service s3Service;
 
     @Value("${app.password-reset.expiry-minutes:60}")
     private long passwordResetExpiryMinutes;
@@ -243,10 +244,14 @@ public class AuthService {
                 user.isAdmin()
         );
 
+        String image = user.getImageKey() != null ? s3Service.generatePresignedUrl(user.getImageKey()) : null;
+
         return LoginResponse.builder()
+                .id(user.getId())
                 .token(token)
                 .username(user.getUsername())
                 .email(user.getEmail())
+                .image(image)
                 .isAdmin(user.isAdmin())
                 .roles(List.copyOf(roles))
                 .build();
