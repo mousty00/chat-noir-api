@@ -156,40 +156,21 @@ class UserServiceTest {
 
         @Test
         @DisplayName("uploads profile image and returns presigned URL")
-        void upload_ownerUser_success() throws Exception {
+        void upload_success() throws Exception {
             MockMultipartFile file = new MockMultipartFile("imageFile", "profile.jpg", "image/jpeg", new byte[]{1, 2, 3});
 
             doNothing().when(mediaService).validateImageFile(any());
-            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
             when(mediaService.sanitizeExtension(any())).thenReturn("jpg");
             when(mediaService.generateUserImageKey(anyString(), any(), anyString())).thenReturn("users/testuser/profile.jpg");
             when(s3Service.uploadFileAsync(any(), anyString())).thenReturn(CompletableFuture.completedFuture("users/testuser/profile.jpg"));
             when(s3Service.generatePresignedUrl("users/testuser/profile.jpg")).thenReturn("https://s3/presigned");
             when(userRepository.save(any())).thenReturn(user);
 
-            ApiResponse<String> response = service.uploadProfileImage(file, userId);
+            ApiResponse<String> response = service.uploadProfileImage(file);
 
             assertThat(response.success()).isTrue();
             assertThat(response.data()).contains("presigned");
-        }
-
-        @Test
-        @DisplayName("returns bad request when authenticated user is not the owner")
-        void upload_differentUser_returnsForbidden() {
-            MockMultipartFile file = new MockMultipartFile("imageFile", "profile.jpg", "image/jpeg", new byte[]{1});
-            User otherUser = User.builder()
-                    .id(userId).username("otheruser")
-                    .email("other@example.com").password("pw")
-                    .isAdmin(false).createdAt(Instant.now())
-                    .role(user.getRole())
-                    .build();
-
-            doNothing().when(mediaService).validateImageFile(any());
-            when(userRepository.findById(userId)).thenReturn(Optional.of(otherUser));
-
-            ApiResponse<String> response = service.uploadProfileImage(file, userId);
-
-            assertThat(response.success()).isFalse();
         }
 
         @Test
@@ -198,9 +179,10 @@ class UserServiceTest {
             MockMultipartFile file = new MockMultipartFile("imageFile", "doc.pdf", "application/pdf", new byte[]{});
             doThrow(new IllegalArgumentException("Invalid file type")).when(mediaService).validateImageFile(any());
 
-            ApiResponse<String> response = service.uploadProfileImage(file, userId);
+            ApiResponse<String> response = service.uploadProfileImage(file);
 
             assertThat(response.success()).isFalse();
+            assertThat(response.message()).contains("Invalid image file");
         }
     }
 }

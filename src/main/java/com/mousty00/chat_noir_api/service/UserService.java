@@ -5,7 +5,6 @@ import com.mousty00.chat_noir_api.dto.api.PaginatedResponse;
 import com.mousty00.chat_noir_api.dto.auth.ChangePasswordRequest;
 import com.mousty00.chat_noir_api.dto.user.UserDTO;
 import com.mousty00.chat_noir_api.entity.User;
-import com.mousty00.chat_noir_api.exception.AuthenticationException;
 import com.mousty00.chat_noir_api.exception.UserException;
 import com.mousty00.chat_noir_api.util.generic.GenericService;
 import com.mousty00.chat_noir_api.mapper.UserMapper;
@@ -26,7 +25,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -161,21 +159,19 @@ public class UserService extends GenericService<User, UserDTO, UserRepository, U
         }
     }
 
-    public ApiResponse<String> uploadProfileImage(MultipartFile imageFile, UUID userId) {
+    @Transactional
+    public ApiResponse<String> uploadProfileImage(MultipartFile imageFile) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String authUsername = Objects.requireNonNull(auth).getName();
         try {
             mediaService.validateImageFile(imageFile);
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-            User user = repo.findById(userId).orElseThrow(() -> UserException.userNotFoundById(userId));
-            String authUsername = Objects.requireNonNull(auth).getName();
-
-            if (!authUsername.equals(user.getUsername())) {
-                throw AuthenticationException.accessDenied();
-            }
+            User user = repo.findByUsername(authUsername)
+                    .orElseThrow(UserException::userNotFound);
 
             String extension = FilenameUtils.getExtension(imageFile.getOriginalFilename());
             String sanitizedExtension = mediaService.sanitizeExtension(extension);
-            String imageKey = mediaService.generateUserImageKey(authUsername, userId, sanitizedExtension);
+            String imageKey = mediaService.generateUserImageKey(authUsername, user.getId(), sanitizedExtension);
             String fileName = s3Service.uploadFileAsync(imageFile, imageKey).get();
 
             String oldImageKey = user.getImageKey();
@@ -192,16 +188,16 @@ public class UserService extends GenericService<User, UserDTO, UserRepository, U
                     url
             );
 
-        } catch (IllegalArgumentException | NoSuchElementException e) {
-            log.warn("uploadProfileImage: validation failed for user {}: {}", userId, e.getMessage());
-            return ApiResponse.badRequest(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            log.warn("uploadProfileImage: validation failed for user {}: {}", authUsername, e.getMessage());
+            return ApiResponse.badRequest("Invalid image file: " + e.getMessage());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.error("uploadProfileImage: S3 upload interrupted for user {}", userId, e);
+            log.error("uploadProfileImage: S3 upload interrupted for user {}", authUsername, e);
             return ApiResponse.internalError("Upload interrupted, please try again");
         } catch (Exception e) {
             log.error("uploadProfileImage: unexpected failure for user {} (file={}, size={}): {}",
-                    userId,
+                    authUsername,
                     imageFile.getOriginalFilename(),
                     imageFile.getSize(),
                     e.getMessage(), e);

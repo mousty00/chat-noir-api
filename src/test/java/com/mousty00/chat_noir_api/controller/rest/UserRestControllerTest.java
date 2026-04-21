@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -89,12 +88,12 @@ class UserRestControllerTest {
     }
 
     @Test
-    @DisplayName("POST /users/{id}/profile-image uploads image and returns URL")
+    @DisplayName("POST /users/me/profile-image uploads image and returns URL")
     void uploadProfileImage_success() throws Exception {
         MockMultipartFile file = new MockMultipartFile("imageFile", "profile.jpg", MediaType.IMAGE_JPEG_VALUE, new byte[]{1, 2, 3});
-        when(userService.uploadProfileImage(any(), eq(userId))).thenReturn(ApiResponse.success(200, "OK", "https://s3/presigned"));
+        when(userService.uploadProfileImage(any())).thenReturn(ApiResponse.success(200, "OK", "https://s3/presigned"));
 
-        mockMvc.perform(multipart("/users/{id}/profile-image", userId).file(file))
+        mockMvc.perform(multipart("/users/me/profile-image").file(file))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data").value("https://s3/presigned"));

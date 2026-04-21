@@ -60,9 +60,9 @@ public class UserRestController {
         return service.changePassword(request);
     }
 
-    @PostMapping(value = "/{id}/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<String> uploadProfileImage(@PathVariable UUID id, @RequestParam MultipartFile imageFile) {
-        return service.uploadProfileImage(imageFile, id);
+    @PostMapping(value = "/me/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<String> uploadProfileImage(@RequestParam MultipartFile imageFile) {
+        return service.uploadProfileImage(imageFile);
     }
 
 }
