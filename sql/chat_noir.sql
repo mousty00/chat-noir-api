@@ -78,12 +78,17 @@ CREATE TABLE "user"
     is_admin      BOOLEAN      NOT NULL,
 
     plan_id       UUID,
-    subscription_start_date TIMESTAMP,
-    subscription_end_date   TIMESTAMP,
+    subscription_start_date TIMESTAMPTZ,
+    subscription_end_date   TIMESTAMPTZ,
     stripe_subscription_id VARCHAR(255),
-    google_id VARCHAR(255),
-
-    profile_media_id UUID,
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    image_key     VARCHAR(150),
+    google_id     VARCHAR(255),
+    email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    email_verification_token VARCHAR(255),
+    email_verification_token_expiry TIMESTAMPTZ,
+    password_reset_token VARCHAR(255),
+    password_reset_token_expiry TIMESTAMPTZ,
 
     CONSTRAINT fk_user_role
         FOREIGN KEY (role_id)
@@ -92,11 +97,6 @@ CREATE TABLE "user"
     CONSTRAINT fk_user_plan
         FOREIGN KEY (plan_id)
             REFERENCES subscription_plan (id)
-            ON DELETE SET NULL,
-
-    CONSTRAINT fk_user_profile_media
-        FOREIGN KEY (profile_media_id)
-            REFERENCES user_media (id)
             ON DELETE SET NULL
 );
 
@@ -112,8 +112,8 @@ CREATE TABLE user_api_key
     user_id     UUID         NOT NULL,
     api_key     VARCHAR(128) NOT NULL UNIQUE, -- hashed api key
     name        VARCHAR(100),
-    created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    expires_at  TIMESTAMP,
+    created_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    expires_at  TIMESTAMPTZ,
     is_revoked  BOOLEAN      NOT NULL DEFAULT FALSE,
 
     CONSTRAINT fk_api_key_user

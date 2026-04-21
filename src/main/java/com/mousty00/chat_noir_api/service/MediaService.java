@@ -16,7 +16,7 @@ public class MediaService {
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
     private static final String DEFAULT_EXTENSION = "jpg";
     private static final String IMAGE_PATH_PATTERN = "users/%s/cats/%s/media-%d.%s";
-    private static final String PROFILE_PATH_PATTERN = "users/%s/profile/profile-%d.%s";
+    private static final String PROFILE_PATH_PATTERN = "users/%s/profile/%s/profile-%d.%s";
     private final S3Service s3Service;
 
     public String sanitizeExtension(String extension) {
